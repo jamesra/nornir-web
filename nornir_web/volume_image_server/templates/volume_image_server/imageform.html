@@ -1,0 +1,31 @@
+﻿<html>
+<head><title>Image server</title></head>
+
+<body>
+
+<form action="{% url 'volume_image_server:get_image' volume_name 'TEM' %}" method="post" title="Enter image coordinates">
+    {% csrf_token %}
+    <ul>
+        <li><b>Volume:</b><input type="text" name="Volume" id="Volume" value="{{ volume_name }}"/></li>
+        <li><b>Min X:</b><input type="text" name="MinX" id="MinX" value="{{ bounds.2 }}"/></li>
+        <li><b>Min Y:</b><input type="text" name="MinY" id="MinY" value="{{ bounds.1 }}"/></li>
+        <li><b>Min Z:</b><input type="text" name="MinZ" id="MinZ" value="{{ bounds.0 }}"/></li>
+        <li><b>Max X:</b><input type="text" name="MaxX" id="MaxX" value="{{ bounds.5 }}"/></li>
+        <li><b>Max Y:</b><input type="text" name="MaxY" id="MaxY" value="{{ bounds.4 }}"/></li>
+        <li><b>Max Z:</b><input type="text" name="MaxZ" id="MaxZ" value="{{ bounds.3 }}"/></li>
+    </ul>
+
+    <p>Maximum Resolution: {{max_resolution}}</p>
+    <p>Resolution: <input type="text" name="Resolution" id="Resolution" value="{{max_resolution}}"/></p>
+
+    <select name="channel"> 
+        {% for channel in channels %}
+            <option value="{{channel}}">{{channel}}</option>
+        {% endfor %}
+    </select>
+
+    <input title="Submit" type="submit"/>
+</form>
+
+</body>
+</html>

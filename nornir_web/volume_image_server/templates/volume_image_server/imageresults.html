@@ -1,0 +1,28 @@
+﻿<html>
+<head><title>Data</title></head>
+
+<body>
+
+<ul>
+    <li><b>Volume:</b>{{ volume_name }}
+    <li><b>Min X:</b>{{ bounds.2 }}
+    <li><b>Min Y:</b>{{ bounds.1 }}
+    <li><b>Min Z:</b>{{ bounds.0 }}
+    <li><b>Max X:</b>{{ bounds.5 }}
+    <li><b>Max Y:</b>{{ bounds.4 }}
+    <li><b>Max Z:</b>{{ bounds.3 }}
+</ul>
+
+<p>Resolution: {{ resolution}}</p> 
+<p>Channel: {{channel}}</p>
+
+{% for image_name, image_href in image_to_href.items %}
+    <p>
+    {{image_name}}
+    </p>
+    <img src="{{image_href}}" alt="image_name"/>
+    <p></p>
+{% endfor %}
+
+</body>
+</html>
