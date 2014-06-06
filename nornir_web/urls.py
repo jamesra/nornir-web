@@ -6,7 +6,8 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-                       url(r'^', include('nornir_web.volume_importer.urls'))
+                       url(r'^volume_image_server/', include('nornir_web.volume_image_server.urls', namespace="volume_image_server", app_name="volume_image_server")),
+                       url(r'^volumes/', include('nornir_web.volume_importer.urls', namespace="volume_importer", app_name="volume_importer"))
     # Examples:
     # url(r'^$', 'nornir_web.views.home', name='home'),
     # url(r'^nornir_web/', include('nornir_web.nornir_web.urls')),

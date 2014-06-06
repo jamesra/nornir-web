@@ -11,6 +11,10 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "nornir-imageregistration", 
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "nornir-pools", "..\nornir-pools\nornir-pools.pyproj", "{5DC0B342-648C-4512-A74C-1141083C728C}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "nornir-volumecontroller", "..\nornir-volumecontroller\nornir-volumecontroller.pyproj", "{4F4644FB-4A8E-4BC8-8EF3-37F1745643B7}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "nornir-volumemodel", "..\nornir-volumemodel\nornir-volumemodel.pyproj", "{B1B6A4E4-8ED7-46ED-85A6-9AFBCC82A2DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +32,10 @@ Global
 		{018901B6-D5A2-41CE-8980-7C24E28D8480}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DC0B342-648C-4512-A74C-1141083C728C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5DC0B342-648C-4512-A74C-1141083C728C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F4644FB-4A8E-4BC8-8EF3-37F1745643B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F4644FB-4A8E-4BC8-8EF3-37F1745643B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1B6A4E4-8ED7-46ED-85A6-9AFBCC82A2DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1B6A4E4-8ED7-46ED-85A6-9AFBCC82A2DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

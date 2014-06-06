@@ -8,6 +8,11 @@
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>{9a7a9026-48c1-4688-9d5d-e5699d47d074}</InterpreterId>
     <InterpreterVersion>3.4</InterpreterVersion>
+    <WebBrowserPort>64444</WebBrowserPort>
+    <WebBrowserUrl>volume_image_server/IDocBuildTest/690/TEM/64/0001_X0_Y0.png</WebBrowserUrl>
+    <CommandLineArguments>
+    </CommandLineArguments>
+    <PythonRunWebServerCommandArguments>runserver --settings $(DjangoSettingsModule) %SERVER_PORT% $(CommandLineArguments)</PythonRunWebServerCommandArguments>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -16,8 +21,7 @@
     <ProjectHome>.</ProjectHome>
     <ProjectTypeGuids>{5F0BE9CA-D677-4A4D-8806-6076C0FAAD37};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <StartupFile>manage.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>..\nornir-shared;..\nornir-pools;nornir_web\;..\nornir-volumecontroller\;..\nornir-volumemodel\;..\nornir-imageregistration\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <LaunchProvider>Django launcher</LaunchProvider>
     <OutputPath>.</OutputPath>
@@ -35,10 +39,14 @@
     <Compile Include="nornir_web\settings.py" />
     <Compile Include="nornir_web\urls.py" />
     <Compile Include="nornir_web\volume_image_server\models.py" />
+    <Compile Include="nornir_web\volume_image_server\settings.py" />
     <Compile Include="nornir_web\volume_image_server\tests.py" />
+    <Compile Include="nornir_web\volume_image_server\urls.py" />
     <Compile Include="nornir_web\volume_image_server\views.py" />
+    <Compile Include="nornir_web\volume_image_server\viking_views.py" />
     <Compile Include="nornir_web\volume_image_server\__init__.py" />
     <Compile Include="nornir_web\volume_importer\models.py" />
+    <Compile Include="nornir_web\volume_importer\settings.py" />
     <Compile Include="nornir_web\volume_importer\tests.py" />
     <Compile Include="nornir_web\volume_importer\urls.py" />
     <Compile Include="nornir_web\volume_importer\views.py" />
@@ -52,11 +60,6 @@
       <ProductId>Django</ProductId>
       <FriendlyName>Django 1.4</FriendlyName>
     </WebPiReference>
-    <WebPiReference Include="https://www.microsoft.com/web/webpi/3.0/toolsproductlist.xml%3fPython27">
-      <Feed>https://www.microsoft.com/web/webpi/3.0/toolsproductlist.xml</Feed>
-      <ProductId>Python27</ProductId>
-      <FriendlyName>Python 2.7</FriendlyName>
-    </WebPiReference>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\2.7" />
@@ -67,15 +70,20 @@
     <Folder Include="nornir_web\Logs\" />
     <Folder Include="nornir_web\volume_image_server\" />
     <Folder Include="nornir_web\volume_image_server\templates\" />
+    <Folder Include="nornir_web\volume_image_server\templates\volume_image_server\" />
     <Folder Include="nornir_web\volume_importer\" />
     <Folder Include="nornir_web\volume_importer\templates\" />
+    <Folder Include="nornir_web\volume_importer\templates\volume_importer\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="nornir_web\settings.pyc" />
     <Content Include="nornir_web\urls.pyc" />
-    <Content Include="nornir_web\volume_image_server\templates\index.html" />
-    <Content Include="nornir_web\volume_importer\templates\index.html" />
-    <Content Include="nornir_web\volume_importer\templates\volumelist.html" />
+    <Content Include="nornir_web\volume_image_server\templates\volume_image_server\imageform.html" />
+    <Content Include="nornir_web\volume_image_server\templates\volume_image_server\imageresults.html" />
+    <Content Include="nornir_web\volume_image_server\templates\volume_image_server\index.html" />
+    <Content Include="nornir_web\volume_image_server\templates\volume_image_server\volumedetails.html" />
+    <Content Include="nornir_web\volume_importer\templates\volume_importer\index.html" />
+    <Content Include="nornir_web\volume_importer\templates\volume_importer\volumelist.html" />
     <Content Include="nornir_web\volume_importer\urls.pyc" />
     <Content Include="nornir_web\volume_importer\views.pyc" />
     <Content Include="nornir_web\volume_importer\__init__.pyc" />

@@ -26,7 +26,8 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'nornir_web', 'volume_importer', 'templates')]
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'nornir_web', 'volume_importer', 'templates'),
+                 os.path.join(BASE_DIR, 'nornir_web', 'volume_image_server', 'templates'),]
 # Application definition
 
 INSTALLED_APPS = (
@@ -36,6 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'volume_importer',
+    'volume_image_server'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -80,3 +83,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+VOLUME_IMPORTER_VOLUMEDIRMEDIR = ['C:\\temp\\TestOutput']
+VOLUME_IMAGE_SERVER_VOLUMEDIR = VOLUME_IMPORTER_VOLUMEDIRMEDIR
