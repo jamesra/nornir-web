@@ -1,0 +1,11 @@
+<html>
+<head><title>Image server</title></head>
+
+<body>
+
+{% for dataset in datasets.all %}
+	<p>{{ dataset.name }}</p>
+{% endfor %}
+
+</body>
+</html>

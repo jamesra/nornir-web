@@ -27,7 +27,8 @@ TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'nornir_web', 'volume_importer', 'templates'),
-                 os.path.join(BASE_DIR, 'nornir_web', 'volume_image_server', 'templates'),]
+                 os.path.join(BASE_DIR, 'nornir_web', 'volume_image_server', 'templates'),
+                 os.path.join(BASE_DIR, 'nornir_web', 'volume_server', 'templates')]
 # Application definition
 
 INSTALLED_APPS = (
@@ -37,8 +38,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'volume_importer',
-    'volume_image_server'
+    'nornir_web.volume_server',
+    'nornir_djangomodel'
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.messages.context_processors.messages',
+    'django.contrib.auth.context_processors.auth'
 )
 
 MIDDLEWARE_CLASSES = (

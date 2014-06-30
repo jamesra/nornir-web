@@ -9,10 +9,16 @@
     <InterpreterId>{9a7a9026-48c1-4688-9d5d-e5699d47d074}</InterpreterId>
     <InterpreterVersion>3.4</InterpreterVersion>
     <WebBrowserPort>64444</WebBrowserPort>
-    <WebBrowserUrl>volume_image_server/IDocBuildTest/690/TEM/64/0001_X0_Y0.png</WebBrowserUrl>
+    <WebBrowserUrl>volume_server/IDocBuildTest/Grid/bounds</WebBrowserUrl>
     <CommandLineArguments>
     </CommandLineArguments>
     <PythonRunWebServerCommandArguments>runserver --settings $(DjangoSettingsModule) %SERVER_PORT% $(CommandLineArguments)</PythonRunWebServerCommandArguments>
+    <PythonDebugWebServerCommandArguments>
+    </PythonDebugWebServerCommandArguments>
+    <PythonRunWebServerCommand>
+    </PythonRunWebServerCommand>
+    <PythonDebugWebServerCommand>
+    </PythonDebugWebServerCommand>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -21,7 +27,7 @@
     <ProjectHome>.</ProjectHome>
     <ProjectTypeGuids>{5F0BE9CA-D677-4A4D-8806-6076C0FAAD37};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <StartupFile>manage.py</StartupFile>
-    <SearchPath>..\nornir-shared;..\nornir-pools;nornir_web\;..\nornir-volumecontroller\;..\nornir-volumemodel\;..\nornir-imageregistration\</SearchPath>
+    <SearchPath>..\nornir-shared;..\nornir-pools;nornir_web\;..\nornir-volumecontroller\;..\nornir-volumemodel\;..\nornir-imageregistration\;..\nornir-djangomodel</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <LaunchProvider>Django launcher</LaunchProvider>
     <OutputPath>.</OutputPath>
@@ -36,21 +42,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="manage.py" />
+    <Compile Include="nornir_web\volume_server\admin.py" />
     <Compile Include="nornir_web\settings.py" />
     <Compile Include="nornir_web\urls.py" />
-    <Compile Include="nornir_web\volume_image_server\models.py" />
-    <Compile Include="nornir_web\volume_image_server\settings.py" />
-    <Compile Include="nornir_web\volume_image_server\tests.py" />
-    <Compile Include="nornir_web\volume_image_server\urls.py" />
-    <Compile Include="nornir_web\volume_image_server\views.py" />
-    <Compile Include="nornir_web\volume_image_server\viking_views.py" />
-    <Compile Include="nornir_web\volume_image_server\__init__.py" />
-    <Compile Include="nornir_web\volume_importer\models.py" />
-    <Compile Include="nornir_web\volume_importer\settings.py" />
-    <Compile Include="nornir_web\volume_importer\tests.py" />
-    <Compile Include="nornir_web\volume_importer\urls.py" />
-    <Compile Include="nornir_web\volume_importer\views.py" />
-    <Compile Include="nornir_web\volume_importer\__init__.py" />
+    <Compile Include="nornir_web\volume_server\management\commands\volume_import.py" />
+    <Compile Include="nornir_web\volume_server\management\commands\__init__.py" />
+    <Compile Include="nornir_web\volume_server\management\__init__.py" />
+    <Compile Include="nornir_web\volume_server\models.py" />
+    <Compile Include="nornir_web\volume_server\nornir_models.py" />
+    <Compile Include="nornir_web\volume_server\settings.py" />
+    <Compile Include="nornir_web\volume_server\tests.py" />
+    <Compile Include="nornir_web\volume_server\test\test_command_import.py" />
+    <Compile Include="nornir_web\volume_server\urls.py" />
+    <Compile Include="nornir_web\volume_server\views.py" />
+    <Compile Include="nornir_web\volume_server\viking_views.py" />
+    <Compile Include="nornir_web\volume_server\__init__.py" />
     <Compile Include="nornir_web\wsgi.py" />
     <Compile Include="nornir_web\__init__.py" />
   </ItemGroup>
@@ -62,31 +68,24 @@
     </WebPiReference>
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\2.7" />
     <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\3.4" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="nornir_web\" />
-    <Folder Include="nornir_web\Logs\" />
-    <Folder Include="nornir_web\volume_image_server\" />
-    <Folder Include="nornir_web\volume_image_server\templates\" />
-    <Folder Include="nornir_web\volume_image_server\templates\volume_image_server\" />
-    <Folder Include="nornir_web\volume_importer\" />
-    <Folder Include="nornir_web\volume_importer\templates\" />
-    <Folder Include="nornir_web\volume_importer\templates\volume_importer\" />
+    <Folder Include="nornir_web\volume_server\" />
+    <Folder Include="nornir_web\volume_server\management\" />
+    <Folder Include="nornir_web\volume_server\management\commands\" />
+    <Folder Include="nornir_web\volume_server\test\" />
+    <Folder Include="nornir_web\volume_server\templates\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="nornir_web\settings.pyc" />
     <Content Include="nornir_web\urls.pyc" />
-    <Content Include="nornir_web\volume_image_server\templates\volume_image_server\imageform.html" />
-    <Content Include="nornir_web\volume_image_server\templates\volume_image_server\imageresults.html" />
-    <Content Include="nornir_web\volume_image_server\templates\volume_image_server\index.html" />
-    <Content Include="nornir_web\volume_image_server\templates\volume_image_server\volumedetails.html" />
-    <Content Include="nornir_web\volume_importer\templates\volume_importer\index.html" />
-    <Content Include="nornir_web\volume_importer\templates\volume_importer\volumelist.html" />
-    <Content Include="nornir_web\volume_importer\urls.pyc" />
-    <Content Include="nornir_web\volume_importer\views.pyc" />
-    <Content Include="nornir_web\volume_importer\__init__.pyc" />
+    <Content Include="nornir_web\volume_server\templates\imageform.html" />
+    <Content Include="nornir_web\volume_server\templates\imageresults.html" />
+    <Content Include="nornir_web\volume_server\templates\bounds.html" />
+    <Content Include="nornir_web\volume_server\templates\index.html" />
+    <Content Include="nornir_web\volume_server\templates\VolumeDetails.html" />
     <Content Include="nornir_web\wsgi.pyc" />
     <Content Include="nornir_web\__init__.pyc" />
   </ItemGroup>
