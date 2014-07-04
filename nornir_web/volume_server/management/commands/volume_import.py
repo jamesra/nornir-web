@@ -12,6 +12,7 @@ class Command(BaseCommand):
         if len(args) == 0:
             raise CommandError("import directory not specified")
 
+        section_list = None
         if len(args) == 2:
             section_list = NumberList(args[1])
             print("Importing only sections: %s" % str(section_list))
