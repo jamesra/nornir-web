@@ -4,7 +4,6 @@ import nornir_imageregistration.spatial as spatial
 import nornir_imageregistration.transforms.utils
 import numpy as np
 
-
 def DestinationBoundsFromMappings(mappings):
     '''Given a set of Mapping2D objects return the bounding box
     :return: ndarray [minZ, minY, minX, maxZ, maxY, maxX]'''
@@ -93,7 +92,7 @@ class CoordSpace(models.CoordSpace):
             region = spatial.BoundingBox(region)
 
         mappings = []
-        for mapping in self.incoming_mappings.all():
+        for mapping in self.incoming_mappings.select_related('dest_bounding_box'):
             dest_bbox = Mapping2D.DestBoundingBox(mapping)
             if spatial.BoundingBox.contains(region, dest_bbox):
                 mappings.append(mapping)
@@ -102,15 +101,22 @@ class CoordSpace(models.CoordSpace):
 
 
 def GetData(coordspace, region, resolution, channel_name, filter_name):
+    ''':return: None if no data in region, otherwise ndarray image'''
     if not isinstance(region, spatial.BoundingBox):
         region = spatial.BoundingBox(region)
 
     potential_mappings = coordspace.MappingsWithinBounds(region)
+    if len(potential_mappings) == 0:
+        return None
 
-    db_channel = models.Channel.objects.get(name=channel_name, dataset=coordspace.dataset)
+    db_channel = models.Chananel.objects.get(name=channel_name, dataset=coordspace.dataset)
     # Grab the data2D rows for tiles at the correct levels
     db_filter = models.Filter.objects.get(name=filter_name, channel=db_channel)
     image_to_transform = MappingsToTiles(potential_mappings, db_filter, resolution)
+
+    if len(image_to_transform) == 0:
+        return None
+
 
     mosaic = nornir_imageregistration.mosaic.Mosaic(image_to_transform)
 

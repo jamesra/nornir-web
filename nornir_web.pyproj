@@ -27,7 +27,7 @@
     <ProjectHome>.</ProjectHome>
     <ProjectTypeGuids>{5F0BE9CA-D677-4A4D-8806-6076C0FAAD37};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <StartupFile>manage.py</StartupFile>
-    <SearchPath>..\nornir-shared;..\nornir-pools;nornir_web\;..\nornir-volumecontroller\;..\nornir-volumemodel\;..\nornir-imageregistration\;..\nornir-djangomodel</SearchPath>
+    <SearchPath>..\nornir-shared;..\nornir-pools;nornir_web\;..\nornir-volumecontroller\;..\nornir-volumemodel\;</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <LaunchProvider>Django launcher</LaunchProvider>
     <OutputPath>.</OutputPath>
@@ -49,9 +49,7 @@
     <Compile Include="nornir_web\volume_server\management\commands\__init__.py" />
     <Compile Include="nornir_web\volume_server\management\__init__.py" />
     <Compile Include="nornir_web\volume_server\models.py" />
-    <Compile Include="nornir_web\volume_server\nornir_models.py" />
     <Compile Include="nornir_web\volume_server\settings.py" />
-    <Compile Include="nornir_web\volume_server\tests.py" />
     <Compile Include="nornir_web\volume_server\test\test_command_import.py" />
     <Compile Include="nornir_web\volume_server\urls.py" />
     <Compile Include="nornir_web\volume_server\views.py" />
@@ -75,19 +73,32 @@
     <Folder Include="nornir_web\volume_server\" />
     <Folder Include="nornir_web\volume_server\management\" />
     <Folder Include="nornir_web\volume_server\management\commands\" />
+    <Folder Include="nornir_web\volume_server\templates\volume_server\" />
     <Folder Include="nornir_web\volume_server\test\" />
     <Folder Include="nornir_web\volume_server\templates\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="nornir_web\settings.pyc" />
     <Content Include="nornir_web\urls.pyc" />
-    <Content Include="nornir_web\volume_server\templates\imageform.html" />
-    <Content Include="nornir_web\volume_server\templates\imageresults.html" />
-    <Content Include="nornir_web\volume_server\templates\bounds.html" />
-    <Content Include="nornir_web\volume_server\templates\index.html" />
-    <Content Include="nornir_web\volume_server\templates\VolumeDetails.html" />
+    <Content Include="nornir_web\volume_server\templates\volume_server\bounds.html" />
+    <Content Include="nornir_web\volume_server\templates\volume_server\imageform.html" />
+    <Content Include="nornir_web\volume_server\templates\volume_server\imageresults.html" />
+    <Content Include="nornir_web\volume_server\templates\volume_server\index.html" />
+    <Content Include="nornir_web\volume_server\templates\volume_server\VolumeDetails.html" />
     <Content Include="nornir_web\wsgi.pyc" />
     <Content Include="nornir_web\__init__.pyc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\nornir-djangomodel\nornir-djangomodel.pyproj">
+      <Name>nornir-djangomodel</Name>
+      <Project>{b11db5d0-46e2-4ebf-803b-263a80e023de}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\nornir-imageregistration\nornir-imageregistration.pyproj">
+      <Name>nornir-imageregistration</Name>
+      <Project>{018901b6-d5a2-41ce-8980-7c24e28d8480}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Python Tools\Microsoft.PythonTools.Django.targets" />
   <ProjectExtensions>

@@ -8,16 +8,24 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect, get_obj
 from django.core.urlresolvers import reverse
 from django.core.servers.basehttp import FileWrapper
 from django.views.generic.detail import DetailView
+from django.views.defaults import page_not_found
+
+import cProfile
 
 
 from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION, VOLUME_SERVER_COORD_SPACE_NAME
-from nornir_web.volume_server.settings import VOLUME_SERVER_TILE_CACHE_ROOT, VOLUME_SERVER_TILE_CACHE_URL, VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT, VOLUME_SERVER_TILE_CACHE_ENABLED
+from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED, VOLUME_SERVER_TILE_CACHE_ROOT, VOLUME_SERVER_TILE_CACHE_URL, VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT, VOLUME_SERVER_TILE_CACHE_ENABLED
 
 from . import  models
 # from nornir_djangocontroller import Volume
 
 
 def get_tile(request, dataset_name, section_number, channel_name, downsample, column, row):
+
+    if VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED:
+        profiler = cProfile.Profile()
+        profiler.enable(subcalls=True, builtins=True)
+
     coord_space_name = VOLUME_SERVER_COORD_SPACE_NAME
     filter_name = 'Leveled'
 
@@ -32,26 +40,35 @@ def get_tile(request, dataset_name, section_number, channel_name, downsample, co
 
     (file_path, url_path) = GetTileFilename(dataset_name, section_number, channel_name, downsample, column, row)
     if VOLUME_SERVER_TILE_CACHE_ENABLED and os.path.exists(file_path):
-        return SendImageResponse(request, file_path, url_path)
+        return SendImageResponse(request, file_path, url_path, os.path.getsize(file_path))
 
     region = BoundsForTile(section_number, downsample, column, row)
     coord_space = get_object_or_404(models.CoordSpace, name=coord_space_name)
     resolution = VOLUME_SERVER_COORD_SPACE_RESOLUTION * downsample
 
-
     data = models.GetData(coord_space, region, resolution, channel_name, filter_name)
+    if data is None:
+        return page_not_found(request)
 #
 #   TODO: if os.path.exists(file_path): return file_path
 #   data = volume_controller.GetData(region, resolution, [channel_name])
     data_to_images(data, file_path)
-    return SendImageResponse(request, file_path, url_path)
+
+    if VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED:
+        profiler.disable()
+        profiler.dump_stats(file_path + ".profile")
+
+    return SendImageResponse(request, file_path, url_path, os.path.getsize(file_path))
 
 
-def SendImageResponse(request, file_path, url_path):
+def SendImageResponse(request, file_path, url_path, response_size):
     with open(file_path, "rb") as f:
         try:
             png_data = f.read()
-            return HttpResponse(png_data, mimetype=mimetypes.guess_type(file_path)[0])
+            response = HttpResponse(png_data, mimetype=mimetypes.guess_type(file_path)[0])
+            response['Content-Length'] = response_size
+            return response
+
 
         except Exception as e:
             return page_not_found(request, template_name='500.html')
