@@ -92,7 +92,8 @@ class CoordSpace(models.CoordSpace):
             region = spatial.BoundingBox(region)
 
         mappings = []
-        for mapping in self.incoming_mappings.select_related('dest_bounding_box'):
+        for mapping in self.incoming_mappings.select_related('dest_bounding_box').filter(dest_bounding_box__minZ__lte=region[spatial.iBox.MaxZ],
+                                                                                         dest_bounding_box__maxZ__gte=region[spatial.iBox.MinZ]):
             dest_bbox = Mapping2D.DestBoundingBox(mapping)
             if spatial.BoundingBox.contains(region, dest_bbox):
                 mappings.append(mapping)
