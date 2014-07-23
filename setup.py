@@ -22,9 +22,9 @@ if __name__ == '__main__':
     packages = find_packages()
 
     install_requires = ["django>=1.6.5",
-                        "nornir_volumecontroller>=1.2.0"]
+                        "nornir_djangomodel>=1.2.0"]
 
-    dependency_links = ["git+http://github.com/nornir/nornir-volumecontroller#egg=nornir_volumecontroller-1.2.0"]
+    dependency_links = ["git+http://github.com/nornir/nornir-djangomodel#egg=nornir_djangomodel-1.2.0"]
 
     scripts = None
 

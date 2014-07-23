@@ -109,7 +109,7 @@ def GetData(coordspace, region, resolution, channel_name, filter_name):
     if len(potential_mappings) == 0:
         return None
 
-    db_channel = models.Chananel.objects.get(name=channel_name, dataset=coordspace.dataset)
+    db_channel = models.Channel.objects.get(name=channel_name, dataset=coordspace.dataset)
     # Grab the data2D rows for tiles at the correct levels
     db_filter = models.Filter.objects.get(name=filter_name, channel=db_channel)
     image_to_transform = MappingsToTiles(potential_mappings, db_filter, resolution)
@@ -134,8 +134,6 @@ def MappingsToTiles(mappings, db_filter, resolution=None):
     image_to_transform = {}
 
     for mapping in mappings:
-
-
         tile = Mapping2D.GetTile(mapping, db_filter, resolution)
         if tile is None:
             continue
