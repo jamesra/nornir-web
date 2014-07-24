@@ -1,8 +1,10 @@
 # Create your views here.
 import os
 import mimetypes
+import math
 
 import nornir_imageregistration.core
+import nornir_imageregistration.spatial as spatial
 from django.template import RequestContext
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect, get_object_or_404
 from django.core.urlresolvers import reverse
@@ -11,6 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.defaults import page_not_found
 
 import cProfile
+import numpy
 
 
 from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION, VOLUME_SERVER_COORD_SPACE_NAME
@@ -19,6 +22,21 @@ from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_PROFILE_
 from . import  models
 # from nornir_djangocontroller import Volume
 
+def get_default_blank_tile_path(): 
+    tile_name = "default_empty_%d_%d.png" % (VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT)
+    tile_path = os.path.join(VOLUME_SERVER_TILE_CACHE_ROOT, tile_name)
+    url_path = os.path.join(VOLUME_SERVER_TILE_CACHE_URL, tile_name)
+    return (tile_path, url_path)
+
+def get_or_create_default_blank_tile():
+    (tile_path, url_path) = get_default_blank_tile_path()
+    if not os.path.exists(tile_path):
+        empty_image = numpy.zeros((VOLUME_SERVER_TILE_HEIGHT, VOLUME_SERVER_TILE_WIDTH))
+        nornir_imageregistration.core.SaveImage(tile_path, empty_image)
+    
+    return (tile_path, url_path)
+
+(blank_file_path, blank_url_path) = get_or_create_default_blank_tile()
 
 def get_tile(request, dataset_name, section_number, channel_name, downsample, column, row):
 
@@ -45,15 +63,18 @@ def get_tile(request, dataset_name, section_number, channel_name, downsample, co
     
     print("Generate tile %s" % file_path)
 
-    region = BoundsForTile(section_number, downsample, column, row)
     coord_space = get_object_or_404(models.CoordSpace, name=coord_space_name)
+    region = BoundsForTile(section_number, downsample, column, row)
+     
     resolution = VOLUME_SERVER_COORD_SPACE_RESOLUTION * downsample
 
     try:
         data = models.GetData(coord_space, region, resolution, channel_name, filter_name)
-    except models.OutOfBounds as e:
+    except models.NoDataInRegion:
+        return SendImageResponse(request, blank_file_path, blank_url_path, os.path.getsize(blank_file_path))
+    except models.OutOfBounds:
         print("\tTile out of bounds: %s" % os.path.basename(file_path))
-        return page_not_found(request)
+        return SendOutOfBoundsResponse(request, os.path.basename(file_path), TileBounds(coord_space.bounds.as_tuple(), downsample))
     
     if data is None:
         print("Unable to generate tile %s" % file_path)
@@ -71,6 +92,29 @@ def get_tile(request, dataset_name, section_number, channel_name, downsample, co
     return SendImageResponse(request, file_path, url_path, os.path.getsize(file_path))
 
 
+
+def TileBounds(boundary_rect, downsample):
+    ''':return: (minY, minX, maxY, maxX) of tiles for the given downsample value'''
+    
+    (tile_height, tile_width) = GetTileSize(downsample)
+     
+    return (math.floor(boundary_rect[spatial.iBox.MinY] / tile_height),
+            math.floor(boundary_rect[spatial.iBox.MinX] / tile_width),
+            math.floor(boundary_rect[spatial.iBox.MaxY] / tile_height),
+            math.floor(boundary_rect[spatial.iBox.MaxX] / tile_width))
+
+
+def SendOutOfBoundsResponse(request, file_path, tileBounds): 
+    context = {'file_path': file_path,
+               'min_tile_x' : tileBounds[spatial.iRect.MinX],
+               'min_tile_y' : tileBounds[spatial.iRect.MinY],
+               'max_tile_x' : tileBounds[spatial.iRect.MaxX],
+               'max_tile_y' : tileBounds[spatial.iRect.MaxY]}
+    
+    return render(request, 'volume_server/tile_out_of_bounds.html', context, status=404)
+    
+    
+
 def SendImageResponse(request, file_path, url_path, response_size):
     with open(file_path, "rb") as f:
         try:
@@ -82,11 +126,17 @@ def SendImageResponse(request, file_path, url_path, response_size):
 
         except Exception as e:
             return page_not_found(request, template_name='500.html')
+        
+def GetTileSize(downsample):
+    ''':return: (width, height) of tiles in volume coordinates for given downsample level'''
+    tile_width = VOLUME_SERVER_TILE_WIDTH * downsample
+    tile_height = VOLUME_SERVER_TILE_HEIGHT * downsample
+    
+    return (tile_height, tile_width)
 
 def BoundsForTile(section_number, downsample, column, row):
 
-    tile_width = VOLUME_SERVER_TILE_WIDTH * downsample
-    tile_height = VOLUME_SERVER_TILE_HEIGHT * downsample
+    (tile_height, tile_width) = GetTileSize(downsample)
 
     start_y = tile_height * row
     start_x = tile_width * column

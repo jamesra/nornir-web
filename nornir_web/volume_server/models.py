@@ -8,6 +8,9 @@ class OutOfBounds(Exception):
     '''Indicates a request was out of the volume boundaries'''
     pass
 
+class NoDataInRegion(Exception):
+    pass
+
 def DestinationBoundsFromMappings(mappings):
     '''Given a set of Mapping2D objects return the bounding box
     :return: ndarray [minZ, minY, minX, maxZ, maxY, maxX]'''
@@ -120,19 +123,20 @@ class CoordSpace(models.CoordSpace):
 def GetMappings(coordspace, region):
     ''':return: None if no data in region, otherwise ndarray image'''
     assert(isinstance(region, spatial.BoundingBox))
-
     potential_mappings = coordspace.MappingsWithinBounds(region)
     if len(potential_mappings) == 0:
-        raise OutOfBounds()
+        raise NoDataInRegion()
     
     return potential_mappings
 
-    
-    
+
 def GetData(coordspace, region, resolution, channel_name, filter_name):
     ''':return: None if no data in region, otherwise ndarray image'''
     if not isinstance(region, spatial.BoundingBox):
         region = spatial.BoundingBox(region)
+        
+    if not RegionWithinCoordSpace(region, coordspace):
+        raise OutOfBounds()
 
     potential_mappings = GetMappings(coordspace, region) 
     
@@ -148,6 +152,15 @@ def GetData(coordspace, region, resolution, channel_name, filter_name):
     (image, mask) = mosaic.AssembleTiles(tilesPath=coordspace.dataset.path, FixedRegion=region.RectangleXY.ToArray(), usecluster=True, requiredScale=requiredScale)
 
     return image
+
+
+def RegionWithinCoordSpace(region, coord_space):
+    coord_space_bounds = coord_space.bounds.as_tuple() 
+    coord_space_bounding_box = spatial.BoundingBox.CreateFromBounds(coord_space_bounds)
+    if not spatial.BoundingBox.contains(coord_space_bounding_box, region):
+        return False
+    
+    return True
 
 
 def MappingsToTiles(mappings, db_filter, resolution=None, downsample=None):
