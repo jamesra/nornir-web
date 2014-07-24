@@ -40,14 +40,23 @@ def get_tile(request, dataset_name, section_number, channel_name, downsample, co
 
     (file_path, url_path) = GetTileFilename(dataset_name, section_number, channel_name, downsample, column, row)
     if VOLUME_SERVER_TILE_CACHE_ENABLED and os.path.exists(file_path):
+        print("Cached response for %s" % file_path)
         return SendImageResponse(request, file_path, url_path, os.path.getsize(file_path))
+    
+    print("Generate tile %s" % file_path)
 
     region = BoundsForTile(section_number, downsample, column, row)
     coord_space = get_object_or_404(models.CoordSpace, name=coord_space_name)
     resolution = VOLUME_SERVER_COORD_SPACE_RESOLUTION * downsample
 
-    data = models.GetData(coord_space, region, resolution, channel_name, filter_name)
+    try:
+        data = models.GetData(coord_space, region, resolution, channel_name, filter_name)
+    except models.OutOfBounds as e:
+        print("\tTile out of bounds: %s" % os.path.basename(file_path))
+        return page_not_found(request)
+    
     if data is None:
+        print("Unable to generate tile %s" % file_path)
         return page_not_found(request)
 #
 #   TODO: if os.path.exists(file_path): return file_path
@@ -58,6 +67,7 @@ def get_tile(request, dataset_name, section_number, channel_name, downsample, co
         profiler.disable()
         profiler.dump_stats(file_path + ".profile")
 
+    print("\tResponse sent for %s" % file_path)
     return SendImageResponse(request, file_path, url_path, os.path.getsize(file_path))
 
 
