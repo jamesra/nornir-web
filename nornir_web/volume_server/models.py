@@ -4,6 +4,10 @@ import nornir_imageregistration.spatial as spatial
 import nornir_imageregistration.transforms.utils
 import numpy as np
 
+class OutOfBounds(Exception):
+    '''Indicates a request was out of the volume boundaries'''
+    pass
+
 def DestinationBoundsFromMappings(mappings):
     '''Given a set of Mapping2D objects return the bounding box
     :return: ndarray [minZ, minY, minX, maxZ, maxY, maxX]'''
@@ -56,16 +60,19 @@ class Mapping2D(models.Mapping2D):
         return spatial.BoundingBox.CreateFromBounds(mapping.src_bounding_box.as_tuple())
 
     @classmethod
-    def GetTile(cls, mapping, db_filter, resolution=None):
+    def GetTileByResolution(cls, mapping, db_filter, resolution):
         downsample_level = int((resolution / mapping.src_coordinate_space.scale_value_X))
-
+        return cls.GetTileByDownsample(mapping, db_filter, downsample_level)
+    
+    @classmethod
+    def GetTileByDownsample(cls, mapping, db_filter, downsample_level):
         Tiles = Data2D.objects.filter(level__lte=downsample_level, filter=db_filter, coord_space=mapping.src_coordinate_space)
         if len(Tiles) == 0:
             return None
 
         Tile = Data2D.HighestResolutionData(Tiles)
         return Tile
-
+    
 
     class Meta:
         proxy = True
@@ -91,59 +98,87 @@ class CoordSpace(models.CoordSpace):
         if not isinstance(region, spatial.BoundingBox):
             region = spatial.BoundingBox(region)
 
-        mappings = []
-        for mapping in self.incoming_mappings.select_related('dest_bounding_box').filter(dest_bounding_box__minZ__lte=region[spatial.iBox.MaxZ],
-                                                                                         dest_bounding_box__maxZ__gte=region[spatial.iBox.MinZ]):
-            dest_bbox = Mapping2D.DestBoundingBox(mapping)
-            if spatial.BoundingBox.contains(region, dest_bbox):
-                mappings.append(mapping)
+#         mappings = []
+#         for mapping in self.incoming_mappings.select_related('dest_bounding_box').filter(dest_bounding_box__minZ__lte=region[spatial.iBox.MaxZ],
+#                                                                                          dest_bounding_box__maxZ__gte=region[spatial.iBox.MinZ],
+#                                                                                          dest_bounding_box__minX__lte=region[spatial.iBox.MaxX],
+#                                                                                          dest_bounding_box__maxX__gte=region[spatial.iBox.MinX],
+#                                                                                          dest_bounding_box__minY__lte=region[spatial.iBox.MaxY],
+#                                                                                          dest_bounding_box__maxY__gte=region[spatial.iBox.MinY]):
+#             dest_bbox = Mapping2D.DestBoundingBox(mapping)
+#             if spatial.BoundingBox.contains(region, dest_bbox):
+#                 mappings.append(mapping)
 
-        return mappings
+        return list(self.incoming_mappings.select_related('dest_bounding_box').filter(dest_bounding_box__minZ__lte=region[spatial.iBox.MaxZ],
+                                                                                      dest_bounding_box__maxZ__gte=region[spatial.iBox.MinZ],
+                                                                                      dest_bounding_box__minX__lte=region[spatial.iBox.MaxX],
+                                                                                      dest_bounding_box__maxX__gte=region[spatial.iBox.MinX],
+                                                                                      dest_bounding_box__minY__lte=region[spatial.iBox.MaxY],
+                                                                                      dest_bounding_box__maxY__gte=region[spatial.iBox.MinY]))
 
 
+def GetMappings(coordspace, region):
+    ''':return: None if no data in region, otherwise ndarray image'''
+    assert(isinstance(region, spatial.BoundingBox))
+
+    potential_mappings = coordspace.MappingsWithinBounds(region)
+    if len(potential_mappings) == 0:
+        raise OutOfBounds()
+    
+    return potential_mappings
+
+    
+    
 def GetData(coordspace, region, resolution, channel_name, filter_name):
     ''':return: None if no data in region, otherwise ndarray image'''
     if not isinstance(region, spatial.BoundingBox):
         region = spatial.BoundingBox(region)
 
-    potential_mappings = coordspace.MappingsWithinBounds(region)
-    if len(potential_mappings) == 0:
-        return None
-
+    potential_mappings = GetMappings(coordspace, region) 
+    
     db_channel = models.Channel.objects.get(name=channel_name, dataset=coordspace.dataset)
-    # Grab the data2D rows for tiles at the correct levels
     db_filter = models.Filter.objects.get(name=filter_name, channel=db_channel)
-    image_to_transform = MappingsToTiles(potential_mappings, db_filter, resolution)
-
+    
+    (image_to_transform, requiredScale) = MappingsToTiles(potential_mappings, db_filter, resolution=resolution)
     if len(image_to_transform) == 0:
         return None
 
-
     mosaic = nornir_imageregistration.mosaic.Mosaic(image_to_transform)
 
-    (image, mask) = mosaic.AssembleTiles(tilesPath=coordspace.dataset.path, FixedRegion=region.RectangleXY.ToArray(), usecluster=False)
+    (image, mask) = mosaic.AssembleTiles(tilesPath=coordspace.dataset.path, FixedRegion=region.RectangleXY.ToArray(), usecluster=True, requiredScale=requiredScale)
 
     return image
 
-    # Create a mosaic to pass to assemble
 
-    # Return the generated image
-
-
-def MappingsToTiles(mappings, db_filter, resolution=None):
-    '''Grab the appropriate Data2D objects representing tiles used as input to the mappings'''
+def MappingsToTiles(mappings, db_filter, resolution=None, downsample=None):
+    '''Grab the appropriate Data2D objects representing tiles used as input to the mappings
+    :return: Tuple, (dict, scale) indicating paths to image tiles and the scale relative to the transforms'''
+    
+    #Resolution or downsample must be specified
+    assert(not (resolution is None and downsample is None))
     image_to_transform = {}
+    requiredScale = None
 
     for mapping in mappings:
-        tile = Mapping2D.GetTile(mapping, db_filter, resolution)
+        tile = None
+        if resolution:
+            tile = Mapping2D.GetTileByResolution(mapping, db_filter, resolution)
+        else:
+            tile = Mapping2D.GetTileByDownsample(mapping, db_filter, downsample)
+            
         if tile is None:
             continue
+        
+        if requiredScale is None:
+            requiredScale = tile.level
+        else:
+            assert(requiredScale == tile.level)
 
         transform = mapping.transform_string
 
         image_to_transform[tile.relative_path] = transform
 
-    return image_to_transform
+    return (image_to_transform, 1.0 / requiredScale)
 
 
 
