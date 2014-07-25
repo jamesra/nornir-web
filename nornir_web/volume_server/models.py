@@ -149,15 +149,16 @@ def GetData(coordspace, region, resolution, channel_name, filter_name):
 
     mosaic = nornir_imageregistration.mosaic.Mosaic(image_to_transform)
 
-    (image, mask) = mosaic.AssembleTiles(tilesPath=coordspace.dataset.path, FixedRegion=region.RectangleXY.ToArray(), usecluster=True, requiredScale=requiredScale)
+    (image, mask) = mosaic.AssembleTiles(tilesPath=coordspace.dataset.path, FixedRegion=region.RectangleXY.ToArray(), usecluster=False, requiredScale=requiredScale)
 
     return image
 
 
 def RegionWithinCoordSpace(region, coord_space):
+    #TODO, update the importer to update the coord_space bounding box when new Z levels are added 
     coord_space_bounds = coord_space.bounds.as_tuple() 
     coord_space_bounding_box = spatial.BoundingBox.CreateFromBounds(coord_space_bounds)
-    if not spatial.BoundingBox.contains(coord_space_bounding_box, region):
+    if not spatial.BoundingBox.contains(region, coord_space_bounding_box):
         return False
     
     return True

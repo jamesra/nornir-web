@@ -27,4 +27,4 @@ class Command(BaseCommand):
 
             dataset_name = import_xml.VolumeXMLImporter.Import(volume_xml_path, section_list=section_list)
 
-            self.stdout.write('Successfully imported dataset %s from %s' % (dataset_name, volume_path))
+            print('Successfully imported dataset %s from %s' % (dataset_name, volume_path))

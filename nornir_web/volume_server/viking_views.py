@@ -112,8 +112,7 @@ def SendOutOfBoundsResponse(request, file_path, tileBounds):
                'max_tile_y' : tileBounds[spatial.iRect.MaxY]}
     
     return render(request, 'volume_server/tile_out_of_bounds.html', context, status=404)
-    
-    
+
 
 def SendImageResponse(request, file_path, url_path, response_size):
     with open(file_path, "rb") as f:
