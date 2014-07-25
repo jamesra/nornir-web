@@ -75,7 +75,6 @@ class Mapping2D(models.Mapping2D):
 
         Tile = Data2D.HighestResolutionData(Tiles)
         return Tile
-    
 
     class Meta:
         proxy = True
