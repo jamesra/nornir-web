@@ -148,7 +148,7 @@ def GetData(coordspace, region, resolution, channel_name, filter_name):
 
     mosaic = nornir_imageregistration.mosaic.Mosaic(image_to_transform)
 
-    (image, mask) = mosaic.AssembleTiles(tilesPath=coordspace.dataset.path, FixedRegion=region.RectangleXY.ToArray(), usecluster=False, requiredScale=requiredScale)
+    (image, mask) = mosaic.AssembleTiles(tilesPath=coordspace.dataset.path, FixedRegion=region.RectangleXY.ToArray(), usecluster=True, requiredScale=requiredScale)
 
     return image
 
