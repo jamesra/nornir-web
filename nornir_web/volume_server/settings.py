@@ -3,7 +3,6 @@ from django.conf import settings
 '''
 List of directories that may contain volumes
 '''
-VOLUME_SERVER_COORD_SPACE_NAME = getattr(settings, "VOLUME_SERVER_DEFAULT_COORD_SPACE_NAME", "Grid")
 VOLUME_SERVER_COORD_SPACE_RESOLUTION = getattr(settings, "VOLUME_SERVER_COORD_SPACE_RESOLUTION", 2.176)
 
 VOLUME_SERVER_TILE_WIDTH = getattr(settings, "TILE_WIDTH", 256)

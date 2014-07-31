@@ -38,8 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'nornir_web.volume_server',
-    'nornir_djangomodel',
-    'south'
+    'nornir_djangomodel'
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

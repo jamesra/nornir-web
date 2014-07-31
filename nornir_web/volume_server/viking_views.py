@@ -16,7 +16,7 @@ import cProfile
 import numpy
 
 
-from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION, VOLUME_SERVER_COORD_SPACE_NAME
+from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION
 from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED, VOLUME_SERVER_TILE_CACHE_ROOT, VOLUME_SERVER_TILE_CACHE_URL, VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT, VOLUME_SERVER_TILE_CACHE_ENABLED
 
 from . import  models
@@ -148,8 +148,8 @@ def BoundsForTile(section_number, downsample, column, row):
     return bounds
 
 
-def GetTileFilename(volume_name, section_number, channel_name, downsample, column, row):
-    sub_path = os.path.join(volume_name, '%04d' % (section_number), channel_name, '%03d' % (int(downsample)), 'X%03d_Y%03d.png' % (column, row))
+def GetTileFilename(volume_name, coord_space_name, section_number, channel_name, downsample, column, row):
+    sub_path = os.path.join(volume_name, coord_space_name, '%04d' % (section_number), channel_name, '%03d' % (int(downsample)), 'X%03d_Y%03d.png' % (column, row))
     file_path = os.path.join(VOLUME_SERVER_TILE_CACHE_ROOT, sub_path)
     url_path = os.path.join(VOLUME_SERVER_TILE_CACHE_URL, sub_path)
     return (file_path, url_path)
