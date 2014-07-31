@@ -22,9 +22,14 @@ admin/admin
 Thanks to Damien Tougas for his help on this recipe.
 """
 
+import multiprocessing
+
 if __name__ == '__main__':
     import cherrypy
-    cherrypy.config.update({'server.socket_port': 8090, 'checker.on': False})
+    cherrypy.config.update({'server.socket_port': 8090,
+                            'server.socket_host': '0.0.0.0',
+                            'checker.on': False,
+                            'server.thread_pool': multiprocessing.cpu_count()})
 
     import  djangoplugin
     djangoplugin.DjangoAppPlugin(cherrypy.engine, settings_module='nornir_web.settings').subscribe()
