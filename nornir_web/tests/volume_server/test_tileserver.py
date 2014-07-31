@@ -8,10 +8,12 @@ from django.test import Client
 
 import volume_server.management.commands.volume_import as volume_import
 
-import volume_server.viking_views as viking_views
-
 
 class TestTileServer(test_base.PlatformTest):
+    
+    
+    def assert_status_code(self,response, ExpectedCode=200):
+        self.assertEqual(response.status_code, ExpectedCode, "Invalid status code %d, expected %d" % (response.status_code, ExpectedCode))        
 
     @property
     def VolumePath(self):
@@ -31,13 +33,27 @@ class TestTileServer(test_base.PlatformTest):
         return
 
     def test_get_tile(self):
-        c = Client()
-        response = c.post('/volume_server/IDocBuildTest/691/TEM/8/T_X1_Y1.png')
         
+         
+        
+        c = Client()
+        
+        #Out of X,Y bounds
+        response = c.post('/volume_server/IDocBuildTest/Grid/691/TEM/8/T_X1000000_Y1000000.png')
         self.assertIsNotNone(response)
-
-#        viking_views.get_tile(request, dataset_name=self.VolumePath, section_number=692, channel_name="TEM", downsample=16, column=1, row=1)
-
+        self.assert_status_code(response, 404)
+        
+        #Out of Z bounds
+        response = c.post('/volume_server/IDocBuildTest/Grid/1/TEM/8/T_X1000000_Y1000000.png')
+        self.assertIsNotNone(response)
+        self.assert_status_code(response, 404)
+        
+        #Valid Tile
+        response = c.post('/volume_server/IDocBuildTest/Grid/691/TEM/8/T_X1_Y1.png')
+        self.assertIsNotNone(response)
+        self.assert_status_code(response, 200)
+        
+         
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
     import unittest

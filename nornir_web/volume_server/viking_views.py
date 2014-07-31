@@ -38,13 +38,12 @@ def get_or_create_default_blank_tile():
 
 (blank_file_path, blank_url_path) = get_or_create_default_blank_tile()
 
-def get_tile(request, dataset_name, section_number, channel_name, downsample, column, row):
+def get_tile(request, dataset_name, coord_space_name, section_number, channel_name, downsample, column, row):
 
     if VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED:
         profiler = cProfile.Profile()
         profiler.enable(subcalls=True, builtins=True)
-
-    coord_space_name = VOLUME_SERVER_COORD_SPACE_NAME
+ 
     filter_name = 'Leveled'
 
     if not isinstance(section_number, int):
