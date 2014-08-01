@@ -13,12 +13,11 @@ import httplogger
 __all__ = ['DjangoAppPlugin']
 
 class DjangoAppPlugin(plugins.SimplePlugin):
-    def __init__(self, bus, settings_module='settings', wsgi_http_logger=httplogger.HTTPLogger):
+    def __init__(self, bus, wsgi_http_logger=httplogger.HTTPLogger):
         """ CherryPy engine plugin to configure and mount
         the Django application onto the CherryPy server.
         """
-        plugins.SimplePlugin.__init__(self, bus)
-        os.environ['DJANGO_SETTINGS_MODULE'] = settings_module
+        plugins.SimplePlugin.__init__(self, bus) 
         self.wsgi_http_logger = wsgi_http_logger
 
     def start(self):

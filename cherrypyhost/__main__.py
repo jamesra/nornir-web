@@ -33,6 +33,6 @@ if __name__ == '__main__':
 
     import  djangoplugin
     
-    djangoplugin.DjangoAppPlugin(cherrypy.engine, settings_module='volume_settings').subscribe()
+    djangoplugin.DjangoAppPlugin(cherrypy.engine).subscribe()
 
     cherrypy.quickstart()
