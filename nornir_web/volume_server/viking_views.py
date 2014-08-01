@@ -70,6 +70,7 @@ def get_tile(request, dataset_name, coord_space_name, section_number, channel_na
     try:
         data = models.GetData(coord_space, region, resolution, channel_name, filter_name)
     except models.NoDataInRegion:
+        print("\tNo data in region: %s" % os.path.basename(file_path))
         return SendImageResponse(request, blank_file_path, blank_url_path, os.path.getsize(blank_file_path))
     except models.OutOfBounds:
         print("\tTile out of bounds: %s" % os.path.basename(file_path))
