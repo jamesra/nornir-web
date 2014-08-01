@@ -32,6 +32,7 @@ if __name__ == '__main__':
                             'server.thread_pool': multiprocessing.cpu_count()})
 
     import  djangoplugin
-    djangoplugin.DjangoAppPlugin(cherrypy.engine, settings_module='nornir_web.default_settings').subscribe()
+    
+    djangoplugin.DjangoAppPlugin(cherrypy.engine, settings_module='volume_settings').subscribe()
 
     cherrypy.quickstart()

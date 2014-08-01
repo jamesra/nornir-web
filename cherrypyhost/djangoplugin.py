@@ -9,9 +9,7 @@ from django.conf import settings
 from django.core.handlers.wsgi import WSGIHandler
 
 import httplogger
-
-import nornir_web.default_settings as nornir_web_settings
-
+ 
 __all__ = ['DjangoAppPlugin']
 
 class DjangoAppPlugin(plugins.SimplePlugin):
@@ -31,8 +29,7 @@ class DjangoAppPlugin(plugins.SimplePlugin):
         """
         cherrypy.log("Loading and serving the Django application")
         cherrypy.tree.graft(self.wsgi_http_logger(WSGIHandler()))
-        # settings = self.load_settings()
-        settings = nornir_web_settings
+        settings = self.load_settings() 
 #
         static_handler = cherrypy.tools.staticdir.handler(
             section="/",
@@ -41,21 +38,24 @@ class DjangoAppPlugin(plugins.SimplePlugin):
         )
         cherrypy.tree.mount(static_handler, settings.STATIC_URL)
 
-#===============================================================================
-#
-#     def load_settings(self):
-#         """ Loads the Django application's settings. You can
-#         override this method to provide your own loading
-#         mechanism. Simply return an instance of your settings module.
-#         """
-#
-#         nornir_web_settings.BASE_DIR
-#         name = os.environ['DJANGO_SETTINGS_MODULE']
-#         package, mod = name.rsplit('.', 1)
-#         fd, path, description = imp.find_module(mod, [package.replace('.', '/')])
-#
-#         try:
-#             return imp.load_module(mod, fd, path, description)
-#         finally:
-#             if fd: fd.close()
-#===============================================================================
+
+    def load_settings(self):
+        """ Loads the Django application's settings. You can
+        override this method to provide your own loading
+        mechanism. Simply return an instance of your settings module.
+        """
+ 
+        name = os.environ['DJANGO_SETTINGS_MODULE']
+        fd, path, description = (None,None,None)
+        if '.' in name:
+            package, mod = name.rsplit('.', 1)
+            fd, path, description = imp.find_module(mod)
+        else:
+            mod = name
+            package = None
+            fd, path, description = imp.find_module(mod)
+        
+        try:
+            return imp.load_module(mod, fd, path, description)
+        finally:
+            if fd: fd.close()
