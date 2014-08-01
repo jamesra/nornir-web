@@ -69,7 +69,7 @@ class Mapping2D(models.Mapping2D):
     
     @classmethod
     def GetTileByDownsample(cls, mapping, db_filter, downsample_level):
-        Tiles = Data2D.objects.filter(level__lte=downsample_level, filter=db_filter, coord_space=mapping.src_coordinate_space)
+        Tiles = Data2D.objects.filter(level__lte=downsample_level, coord_space=mapping.src_coordinate_space, filter=db_filter)
         if len(Tiles) == 0:
             return None
 
@@ -109,15 +109,14 @@ class CoordSpace(models.CoordSpace):
 #                                                                                          dest_bounding_box__maxY__gte=region[spatial.iBox.MinY]):
 #             dest_bbox = Mapping2D.DestBoundingBox(mapping)
 #             if spatial.BoundingBox.contains(region, dest_bbox):
-#                 mappings.append(mapping)
+#                 mappings.append(mapping) 
 
-        return list(self.incoming_mappings.select_related('dest_bounding_box').filter(dest_bounding_box__minZ__lte=region[spatial.iBox.MaxZ],
-                                                                                      dest_bounding_box__maxZ__gte=region[spatial.iBox.MinZ],
-                                                                                      dest_bounding_box__minX__lte=region[spatial.iBox.MaxX],
-                                                                                      dest_bounding_box__maxX__gte=region[spatial.iBox.MinX],
-                                                                                      dest_bounding_box__minY__lte=region[spatial.iBox.MaxY],
-                                                                                      dest_bounding_box__maxY__gte=region[spatial.iBox.MinY]))
-
+        return self.incoming_mappings.filter(dest_bounding_box__minZ__lte=region[spatial.iBox.MaxZ],
+                                                  dest_bounding_box__maxZ__gte=region[spatial.iBox.MinZ],
+                                                  dest_bounding_box__minX__lte=region[spatial.iBox.MaxX],
+                                                  dest_bounding_box__maxX__gte=region[spatial.iBox.MinX],
+                                                  dest_bounding_box__minY__lte=region[spatial.iBox.MaxY],
+                                                  dest_bounding_box__maxY__gte=region[spatial.iBox.MinY])
 
 def GetMappings(coordspace, region):
     ''':return: None if no data in region, otherwise ndarray image'''
@@ -138,6 +137,7 @@ def GetData(coordspace, region, resolution, channel_name, filter_name):
         raise OutOfBounds()
 
     potential_mappings = GetMappings(coordspace, region) 
+    
     
     db_channel = models.Channel.objects.get(name=channel_name, dataset=coordspace.dataset)
     db_filter = models.Filter.objects.get(name=filter_name, channel=db_channel)
@@ -190,6 +190,9 @@ def MappingsToTiles(mappings, db_filter, resolution=None, downsample=None):
         transform = mapping.transform_string
 
         image_to_transform[tile.relative_path] = transform
+        
+    if requiredScale == None:
+        return (image_to_transform, None)
 
     return (image_to_transform, 1.0 / requiredScale)
 
