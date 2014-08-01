@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-VOLUME_DIR = 'C:/' + os.path.join('Temp', 'Testoutput', 'IDocBuildTest')
+#VOLUME_DIR = 'C:/' + os.path.join('Temp', 'Testoutput', 'IDocBuildTest')
+VOLUME_DIR = BASE_DIR
 print("VOLUME_DIR=" + VOLUME_DIR)
 
 # Quick-start development settings - unsuitable for production
@@ -62,13 +63,19 @@ WSGI_APPLICATION = 'nornir_web.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(VOLUME_DIR, 'db.sqlite3'),
-    }
-}
+# 
+# DATABASES SHOULD BE DEFINED IN THE VOLUME_SETTINGS.py file
+DATABASES = "DATABASES SHOULD BE DEFINED IN THE VOLUME_SETTINGS.py file stored in the root directory of the nornir volume"
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'nornir_web',
+#         'USER': 'django_test',
+#         'PASSWORD': 'testpassword',
+#         'HOST': 'localhost',
+#         'PORT': '3306'
+#     }
+# }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -90,6 +97,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = 'C:/inetpub/wwwroot/volume_server/static/'
 
-
-VOLUME_IMPORTER_VOLUMEDIRMEDIR = ['C:\\temp\\TestOutput']
-VOLUME_IMAGE_SERVER_VOLUMEDIR = VOLUME_IMPORTER_VOLUMEDIRMEDIR
+VOLUME_IMPORTER_VOLUMEDIRMEDIA = ['C:\\temp\\TestOutput']
+VOLUME_IMAGE_SERVER_VOLUMEDIR = VOLUME_IMPORTER_VOLUMEDIRMEDIA

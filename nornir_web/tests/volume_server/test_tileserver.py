@@ -53,6 +53,11 @@ class TestTileServer(test_base.PlatformTest):
         self.assertIsNotNone(response)
         self.assert_status_code(response, 200)
         
+        #Valid Tile
+        response = c.post('/volume_server/IDocBuildTest/ChannelToVolume/691/TEM/8/T_X1_Y1.png')
+        self.assertIsNotNone(response)
+        self.assert_status_code(response, 200)
+        
          
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

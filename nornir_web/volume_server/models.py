@@ -122,7 +122,7 @@ def GetMappings(coordspace, region):
     ''':return: None if no data in region, otherwise ndarray image'''
     assert(isinstance(region, spatial.BoundingBox))
     potential_mappings = coordspace.MappingsWithinBounds(region)
-    if len(potential_mappings) == 0:
+    if potential_mappings is None:
         raise NoDataInRegion()
     
     return potential_mappings

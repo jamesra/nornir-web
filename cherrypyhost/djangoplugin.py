@@ -10,7 +10,7 @@ from django.core.handlers.wsgi import WSGIHandler
 
 import httplogger
 
-import nornir_web.settings as nornir_web_settings
+import nornir_web.default_settings as nornir_web_settings
 
 __all__ = ['DjangoAppPlugin']
 

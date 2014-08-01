@@ -3,9 +3,9 @@ import os
 import sys
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nornir_web.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nornir_web.default_settings")
 
-#    os.environ["DJANGO_SETTINGS_MODULE"] = "nornir_web.settings"
+#    os.environ["DJANGO_SETTINGS_MODULE"] = "nornir_web.default_settings"
 
     from django.core.management import execute_from_command_line
 
