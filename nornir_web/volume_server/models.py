@@ -69,7 +69,9 @@ class Mapping2D(models.Mapping2D):
     
     @classmethod
     def GetTileByDownsample(cls, mapping, db_filter, downsample_level):
-        Tiles = Data2D.objects.filter(level__lte=downsample_level, coord_space=mapping.src_coordinate_space, filter=db_filter)
+        Tiles = mapping.src_coordinate_space.data2d_set.filter(level__lte=downsample_level, filter=db_filter)
+        
+        #Tiles = Data2D.objects.filter(level__lte=downsample_level, coord_space=mapping.src_coordinate_space, filter=db_filter)
         if len(Tiles) == 0:
             return None
 
