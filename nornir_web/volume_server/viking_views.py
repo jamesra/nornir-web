@@ -40,9 +40,7 @@ def get_or_create_default_blank_tile():
 
 def get_tile(request, dataset_name, coord_space_name, section_number, channel_name, downsample, column, row):
 
-    if VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED:
-        profiler = cProfile.Profile()
-        profiler.enable(subcalls=True, builtins=True)
+    
  
     filter_name = 'Leveled'
 
@@ -61,6 +59,9 @@ def get_tile(request, dataset_name, coord_space_name, section_number, channel_na
         return SendImageResponse(request, file_path, url_path, os.path.getsize(file_path))
     
     print("Generate tile %s" % file_path)
+    if VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED:
+        profiler = cProfile.Profile()
+        profiler.enable(subcalls=True, builtins=True)
 
     coord_space = get_object_or_404(models.CoordSpace, name=coord_space_name)
     region = BoundsForTile(section_number, downsample, column, row)

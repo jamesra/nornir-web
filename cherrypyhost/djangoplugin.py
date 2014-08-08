@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import imp
 import os, os.path
+import sys
 
 import cherrypy
 from cherrypy.process import plugins
@@ -36,15 +37,10 @@ class DjangoAppPlugin(plugins.SimplePlugin):
             root=os.path.abspath(os.path.split(settings.STATIC_ROOT)[0])
         )
         cherrypy.tree.mount(static_handler, settings.STATIC_URL)
-
-
-    def load_settings(self):
-        """ Loads the Django application's settings. You can
-        override this method to provide your own loading
-        mechanism. Simply return an instance of your settings module.
-        """
- 
-        name = os.environ['DJANGO_SETTINGS_MODULE']
+        
+    @classmethod
+    def get_settings_from_module(cls, name):
+        
         fd, path, description = (None,None,None)
         if '.' in name:
             package, mod = name.rsplit('.', 1)
@@ -58,3 +54,32 @@ class DjangoAppPlugin(plugins.SimplePlugin):
             return imp.load_module(mod, fd, path, description)
         finally:
             if fd: fd.close()
+                    
+
+    def load_settings(self):
+        """ Loads the Django application's settings. You can
+        override this method to provide your own loading
+        mechanism. Simply return an instance of your settings module.
+        """
+ 
+        name = None
+        path = None
+        if len(sys.argv) > 1:
+            name = sys.argv[1]
+            os.environ['DJANGO_SETTINGS_MODULE'] = name
+            if len(sys.argv) > 2:
+                path = sys.argv[2]
+                if os.path.isdir(path):
+                    sys.path.append(path)
+                else:
+                    print("Settings module path is not a valid directory: %s" % (path))
+                    sys.exit()
+        elif 'DJANGO_SETTINGS_MODULE' in os.environ:
+            name = os.environ['DJANGO_SETTINGS_MODULE']
+        else:
+            print("Settings module must be first argument or specified in DJANGO_SETTINGS_MODULE environment variable")
+            sys.exit()
+            
+            
+        return self.get_settings_from_module(name)
+        

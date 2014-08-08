@@ -65,18 +65,11 @@ class Mapping2D(models.Mapping2D):
     @classmethod
     def GetTileByResolution(cls, mapping, db_filter, resolution):
         downsample_level = int((resolution / mapping.src_coordinate_space.scale_value_X))
-        return cls.GetTileByDownsample(mapping, db_filter, downsample_level)
+        return CoordSpace.GetTileByDownsample(mapping.src_coordinate_space, db_filter, downsample_level)
     
     @classmethod
     def GetTileByDownsample(cls, mapping, db_filter, downsample_level):
-        Tiles = mapping.src_coordinate_space.data2d_set.filter(level__lte=downsample_level, filter=db_filter)
-        
-        #Tiles = Data2D.objects.filter(level__lte=downsample_level, coord_space=mapping.src_coordinate_space, filter=db_filter)
-        if len(Tiles) == 0:
-            return None
-
-        Tile = Data2D.HighestResolutionData(Tiles)
-        return Tile
+        return CoordSpace(mapping.src_coordinate_space, db_filter, downsample_level)
 
     class Meta:
         proxy = True
@@ -85,6 +78,27 @@ class CoordSpace(models.CoordSpace):
 
     class Meta:
         proxy = True
+        
+    @classmethod
+    def GetTileByResolution(cls, coord_space, db_filter, resolution):
+        downsample_level = int((resolution / coord_space.scale_value_X))
+        return cls.GetTileByDownsample(coord_space, db_filter, downsample_level)
+    
+    @classmethod
+    def GetTileByDownsample(cls, coord_space, db_filter, downsample_level):
+        #Tile = coord_space.data2d_set.filter(level__lte=downsample_level, filter=db_filter).order_by('-level').first()
+        #return Tile
+               
+        return Data2D.objects.filter(level__lte=downsample_level, coord_space=coord_space, filter=db_filter).order_by('-level').first()
+#===============================================================================
+#         if len(Tiles) == 0:
+#             return None
+#         
+#         return Tiles
+# 
+#         Tile = Data2D.HighestResolutionData(Tiles)
+#         return Tile
+#===============================================================================
 
     def GetBounds(self):
         if len(self.incoming_mappings.all()) is 0:
@@ -95,6 +109,20 @@ class CoordSpace(models.CoordSpace):
         # self.save()
 
         return bbox.ToArray()
+    
+    def MappingsOnSection(self, region):
+        '''Look for mapping that fall exactly on one section'''
+        if not isinstance(region, spatial.BoundingBox):
+            region = spatial.BoundingBox(region)
+            
+        assert(region[spatial.iBox.MaxZ] == region[spatial.iBox.MinZ])
+        
+        return self.incoming_mappings.filter(dest_bounding_box__minZ=region[spatial.iBox.MinZ],
+                                                  dest_bounding_box__maxZ=region[spatial.iBox.MaxZ],
+                                                  dest_bounding_box__minX__lte=region[spatial.iBox.MaxX],
+                                                  dest_bounding_box__maxX__gte=region[spatial.iBox.MinX],
+                                                  dest_bounding_box__minY__lte=region[spatial.iBox.MaxY],
+                                                  dest_bounding_box__maxY__gte=region[spatial.iBox.MinY])
 
     def MappingsWithinBounds(self, region):
         '''Return all mappings who map within the specified region
@@ -120,6 +148,16 @@ class CoordSpace(models.CoordSpace):
                                                   dest_bounding_box__minY__lte=region[spatial.iBox.MaxY],
                                                   dest_bounding_box__maxY__gte=region[spatial.iBox.MinY])
 
+def GetMappingsOnSection(coordspace, region):
+    ''':return: None if no data in region, otherwise ndarray image'''
+    assert(isinstance(region, spatial.BoundingBox))
+    potential_mappings = coordspace.MappingsOnSection(region)
+    if potential_mappings is None:
+        raise NoDataInRegion()
+    
+    return potential_mappings
+
+
 def GetMappings(coordspace, region):
     ''':return: None if no data in region, otherwise ndarray image'''
     assert(isinstance(region, spatial.BoundingBox))
@@ -138,8 +176,7 @@ def GetData(coordspace, region, resolution, channel_name, filter_name):
     if not RegionWithinCoordSpace(region, coordspace):
         raise OutOfBounds()
 
-    potential_mappings = GetMappings(coordspace, region) 
-    
+    potential_mappings = GetMappingsOnSection(coordspace, region) 
     
     db_channel = models.Channel.objects.get(name=channel_name, dataset=coordspace.dataset)
     db_filter = models.Filter.objects.get(name=filter_name, channel=db_channel)
@@ -173,8 +210,10 @@ def MappingsToTiles(mappings, db_filter, resolution=None, downsample=None):
     assert(not (resolution is None and downsample is None))
     image_to_transform = {}
     requiredScale = None
-
-    for mapping in mappings:
+    
+    mappings_with_related = mappings.select_related('src_coordinate_space.data2d')
+    
+    for mapping in mappings_with_related:
         tile = None
         if resolution:
             tile = Mapping2D.GetTileByResolution(mapping, db_filter, resolution)

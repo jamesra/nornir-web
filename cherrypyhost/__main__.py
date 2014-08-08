@@ -29,9 +29,9 @@ if __name__ == '__main__':
     cherrypy.config.update({'server.socket_port': 8090,
                             'server.socket_host': '0.0.0.0',
                             'checker.on': False,
-                            'server.thread_pool': multiprocessing.cpu_count()})
+                            'server.thread_pool': multiprocessing.cpu_count()*2})
 
-    import  djangoplugin
+    import  djangoplugin 
     
     djangoplugin.DjangoAppPlugin(cherrypy.engine).subscribe()
 
