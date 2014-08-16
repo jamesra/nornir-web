@@ -14,8 +14,7 @@ from django.views.defaults import page_not_found
 
 import cProfile
 import numpy
-
-
+ 
 from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION
 from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED, VOLUME_SERVER_TILE_CACHE_ROOT, VOLUME_SERVER_TILE_CACHE_URL, VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT, VOLUME_SERVER_TILE_CACHE_ENABLED
 
@@ -38,10 +37,9 @@ def get_or_create_default_blank_tile():
 
 (blank_file_path, blank_url_path) = get_or_create_default_blank_tile()
 
-def get_tile(request, dataset_name, coord_space_name, section_number, channel_name, downsample, column, row):
 
-    
- 
+def get_tile(request, dataset_name, coord_space_name, section_number, channel_name, downsample, column, row):
+  
     filter_name = 'Leveled'
 
     if not isinstance(section_number, int):
@@ -53,7 +51,7 @@ def get_tile(request, dataset_name, coord_space_name, section_number, channel_na
     if not isinstance(row, int):
         row = int(row)
 
-    (file_path, url_path) = GetTileFilename(dataset_name, coord_space_name, section_number, channel_name, downsample, column, row)
+    (file_path, url_path) = GetTileFullPaths(dataset_name, coord_space_name, section_number, channel_name, downsample, column, row)
     if VOLUME_SERVER_TILE_CACHE_ENABLED and os.path.exists(file_path):
         print("Cached response for %s" % file_path)
         return SendImageResponse(request, file_path, url_path, os.path.getsize(file_path))
@@ -119,7 +117,7 @@ def SendImageResponse(request, file_path, url_path, response_size):
     with open(file_path, "rb") as f:
         try:
             png_data = f.read()
-            response = HttpResponse(png_data, mimetype=mimetypes.guess_type(file_path)[0])
+            response = HttpResponse(png_data, content_type=mimetypes.guess_type(file_path)[0])
             response['Content-Length'] = response_size
             return response
 
@@ -148,13 +146,6 @@ def BoundsForTile(section_number, downsample, column, row):
               float(start_y + tile_height),
               float(start_x + tile_width)]
     return bounds
-
-
-def GetTileFilename(volume_name, coord_space_name, section_number, channel_name, downsample, column, row):
-    sub_path = os.path.join(volume_name, coord_space_name, '%04d' % (section_number), channel_name, '%03d' % (int(downsample)), 'X%03d_Y%03d.png' % (column, row))
-    file_path = os.path.join(VOLUME_SERVER_TILE_CACHE_ROOT, sub_path)
-    url_path = os.path.join(VOLUME_SERVER_TILE_CACHE_URL, sub_path)
-    return (file_path, url_path)
 
 
 def data_to_images(image, image_path):

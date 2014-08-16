@@ -7,6 +7,7 @@ from .. import  test_base
 from django.test import Client
 
 import volume_server.management.commands.volume_import as volume_import
+import volume_server.management.commands.volume_precache as volume_precache
 
 
 class TestTileServer(test_base.PlatformTest):
@@ -31,32 +32,39 @@ class TestTileServer(test_base.PlatformTest):
 
     def tearDown(self):
         return
-
-    def test_get_tile(self):
+#===============================================================================
+# 
+#     def test_get_tile(self):
+#         c = Client()
+#         
+#         #Out of X,Y bounds
+#         response = c.post('/volume_server/IDocBuildTest/Grid/691/TEM/8/T_X1000000_Y1000000.png')
+#         self.assertIsNotNone(response)
+#         self.assert_status_code(response, 404)
+#         
+#         #Out of Z bounds
+#         response = c.post('/volume_server/IDocBuildTest/Grid/1/TEM/8/T_X1000000_Y1000000.png')
+#         self.assertIsNotNone(response)
+#         self.assert_status_code(response, 404)
+#         
+#         #Valid Tile
+#         response = c.post('/volume_server/IDocBuildTest/Grid/691/TEM/8/T_X1_Y1.png')
+#         self.assertIsNotNone(response)
+#         self.assert_status_code(response, 200)
+#         
+#         #Valid Tile
+#         response = c.post('/volume_server/IDocBuildTest/ChannelToVolume/691/TEM/8/T_X1_Y1.png')
+#         self.assertIsNotNone(response)
+#         self.assert_status_code(response, 200)
+#===============================================================================
         
-         
+    def test_precache(self):
         
-        c = Client()
+        precacheCommand = volume_precache.Command()
+        precacheCommand.handle(sections='696', levels='16', coordspace='Grid')
         
-        #Out of X,Y bounds
-        response = c.post('/volume_server/IDocBuildTest/Grid/691/TEM/8/T_X1000000_Y1000000.png')
-        self.assertIsNotNone(response)
-        self.assert_status_code(response, 404)
         
-        #Out of Z bounds
-        response = c.post('/volume_server/IDocBuildTest/Grid/1/TEM/8/T_X1000000_Y1000000.png')
-        self.assertIsNotNone(response)
-        self.assert_status_code(response, 404)
         
-        #Valid Tile
-        response = c.post('/volume_server/IDocBuildTest/Grid/691/TEM/8/T_X1_Y1.png')
-        self.assertIsNotNone(response)
-        self.assert_status_code(response, 200)
-        
-        #Valid Tile
-        response = c.post('/volume_server/IDocBuildTest/ChannelToVolume/691/TEM/8/T_X1_Y1.png')
-        self.assertIsNotNone(response)
-        self.assert_status_code(response, 200)
         
          
 if __name__ == "__main__":

@@ -1,8 +1,11 @@
 import operator
 import nornir_djangomodel.models as models
 import nornir_imageregistration.spatial as spatial
-import nornir_imageregistration.transforms.utils
+import nornir_imageregistration.transforms.utils 
 import numpy as np
+import os
+from nornir_web.volume_server.settings import VOLUME_SERVER_TILE_CACHE_ROOT, VOLUME_SERVER_TILE_CACHE_URL
+import nornir_imageregistration.core
 
 class OutOfBounds(Exception):
     '''Indicates a request was out of the volume boundaries'''
@@ -10,6 +13,50 @@ class OutOfBounds(Exception):
 
 class NoDataInRegion(Exception):
     pass
+
+def AssembleSectionImage(coord_space, section_number, resolution, channel_name, filter_name):
+    if isinstance(coord_space, str):
+        coord_space_name = coord_space
+        coord_space = CoordSpace.objects.get(name=coord_space_name)
+        if coord_space is None:
+            raise ValueError("No coordinate space with name %s" % (coord_space_name))
+    
+    region = coord_space.GetBounds()
+    region2D = (section_number, region[spatial.iBox.MinY], region[spatial.iBox.MinX], section_number, region[spatial.iBox.MaxY], region[spatial.iBox.MaxX])
+    
+    return GetData(coord_space, region2D, resolution, channel_name='TEM', filter_name='Leveled')
+
+ 
+def SaveTileGrid(tiles, tile_path):
+    '''Save the tiles in the dictionary indexed by tuples under the specified path'''
+    
+    if not os.path.exists(tile_path):
+        os.makedirs(tile_path)
+    
+    for (Coords, tile) in tiles.items():
+        (iRow, iCol) = Coords  
+        tile_filename = GetTileFilename(iCol, iRow)
+        tile_fullpath = os.path.join(tile_path, tile_filename)
+        
+        nornir_imageregistration.core.SaveImage(tile_fullpath, tile)
+    
+
+def GetTilePaths(volume_name, coord_space_name, section_number, channel_name, downsample):
+    sub_path = os.path.join(volume_name, coord_space_name, '%04d' % (section_number), channel_name, '%03d' % (int(downsample)))
+    file_path = os.path.join(VOLUME_SERVER_TILE_CACHE_ROOT, sub_path)
+    url_path = os.path.join(VOLUME_SERVER_TILE_CACHE_URL, sub_path)
+    return (file_path, url_path)
+
+def GetTileFilename(column, row):
+    return 'X%03d_Y%03d.png' % (column, row)
+
+def GetTileFullPaths(volume_name, coord_space_name, section_number, channel_name, downsample, column, row):
+    (file_path, url_path) = GetTilePaths(volume_name, coord_space_name, section_number, channel_name, downsample)
+    filename = GetTileFilename(column, row)
+    file_path = os.path.join(file_path, filename)
+    url_path = os.path.join(url_path, filename)
+    return (file_path, url_path)
+
 
 def DestinationBoundsFromMappings(mappings):
     '''Given a set of Mapping2D objects return the bounding box

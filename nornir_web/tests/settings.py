@@ -15,16 +15,22 @@ print("VOLUME NAME= %s" % VOLUME_NAME)
 STATIC_URL = '/static/'
 STATIC_ROOT = 'C:/inetpub/wwwroot/volume_server/static/'
  
+NORNIR_DJANGOMODEL_USEVOLUMEXMLCACHE = False
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'nornir_web_test',
-        'USER': 'django_test',
-        'PASSWORD': 'testpassword',
-        'HOST': 'localhost',
-        'PORT': '3306'
-    }
+    'default' : {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(VOLUME_DIR, 'db.sqlite3'),
+        }
+#     },
+#     'mysql': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'nornir_web_test',
+#         'USER': 'django_test',
+#         'PASSWORD': 'testpassword',
+#         'HOST': 'localhost',
+#         'PORT': '3306'
+#     }
 }
 
 VOLUME_SERVER_TILE_CACHE_ENABLED = False
