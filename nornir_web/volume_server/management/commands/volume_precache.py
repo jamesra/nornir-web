@@ -127,6 +127,7 @@ class TileBuilder(object):
             if iLevel + 1 < len(downsample_levels):
                 self.CarryImageToNextDownsampleLevel(section_image, level, downsample_levels[iLevel+1])
             
+            del section_image
         return
         
         
