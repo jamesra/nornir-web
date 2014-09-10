@@ -20,10 +20,11 @@ class Command(BaseCommand):
 
         section_list = None
         if 'sections' in options:
-            section_list = NumberList(options['sections'])
-            #if len(args) == 2:
-            #section_list = NumberList(args[1])
-            print("Importing only sections: %s" % str(section_list))
+            if not options['sections'] is None:
+                section_list = NumberList(options['sections'])
+                #if len(args) == 2:
+                #section_list = NumberList(args[1])
+                print("Importing only sections: %s" % str(section_list))
 
         if not os.path.exists(volume_path):
             raise CommandError("Requested import directory does not exist:\n\t" + os.path.abspath(volume_path))
