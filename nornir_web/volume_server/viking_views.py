@@ -51,7 +51,7 @@ def get_tile(request, dataset_name, coord_space_name, section_number, channel_na
     if not isinstance(row, int):
         row = int(row)
 
-    (file_path, url_path) = GetTileFullPaths(dataset_name, coord_space_name, section_number, channel_name, downsample, column, row)
+    (file_path, url_path) = models.GetTileFullPaths(dataset_name, coord_space_name, section_number, channel_name, downsample, column, row)
     if VOLUME_SERVER_TILE_CACHE_ENABLED and os.path.exists(file_path):
         print("Cached response for %s" % file_path)
         return SendImageResponse(request, file_path, url_path, os.path.getsize(file_path))
