@@ -61,7 +61,7 @@ class TestTileServer(test_base.PlatformTest):
     def test_precache(self):
         
         precacheCommand = volume_precache.Command()
-        precacheCommand.handle(sections='696', levels='16', coordspace='Grid')
+        precacheCommand.handle(sections='696', levels='16,32', coordspace='Grid')
         
         
         
