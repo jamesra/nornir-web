@@ -7,7 +7,7 @@ from optparse import make_option
 import os
 
 
-from volume_server.models import AssembleSectionImage, CoordSpace, GetTilePaths, SaveTileGrid
+from nornir_web.volume_server.models import AssembleSectionImage, CoordSpace, GetTilePaths, SaveTileGrid
 from ...settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION, VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT
 
 class Command(BaseCommand):
@@ -17,8 +17,8 @@ class Command(BaseCommand):
     help = 'Import or update the volume at the specified path'
     
     option_list = BaseCommand.option_list + (  
-                  make_option('--channel', dest='channel', default=None, type=str),
-                  make_option('--filter', dest='filter', default=None, type=str),
+                  make_option('--channel', dest='channel', default='TEM', type=str),
+                  make_option('--filter', dest='filter', default='Leveled', type=str),
                   make_option('--sections', dest='sections', default=None, type=str), 
                   make_option('--levels', dest='levels', default=None, type=str),
                   make_option('--coordspace', dest='coordspace', default='Grid', type=str)
@@ -61,15 +61,31 @@ class Command(BaseCommand):
         tile_shape = [VOLUME_SERVER_TILE_HEIGHT, VOLUME_SERVER_TILE_WIDTH]
         resolution = VOLUME_SERVER_COORD_SPACE_RESOLUTION * downsample_list[0]
         for section_number in section_list: 
-            section_image = AssembleSectionImage(coord_space, section_number, resolution, channel_name=channel_name, filter_name=filter_name)
+            print('Assemble section #%d' % (section_number))
+            #Check for a marker file indicating we've built tiles
+        
+            (tile_path, url_path) = GetTilePaths(coord_space.dataset.name, coord_space_name=coord_space_name, section_number=section_number, channel_name=channel_name, downsample=downsample_list[0])
+            if not os.path.exists(tile_path):
+                os.makedirs(tile_path)
+            
+            full_image_path = os.path.join(tile_path, 'FullImage.png')
+            
+            if not os.path.exists(full_image_path):
+                section_image = AssembleSectionImage(coord_space, section_number, resolution, channel_name=channel_name, filter_name=filter_name)
+                if section_image is None:
+                    continue 
+                
+                core.SaveImage(full_image_path, section_image)
+            else:
+                section_image = core.LoadImage(full_image_path)
              
+            print('Creating tiles for section #%d' % (section_number))
             #Cut apart the full image to create tiles
             tiles = core.ImageToTiles(section_image, tile_size=tile_shape)
             
-            (tile_path, url_path) = GetTilePaths(coord_space.dataset.name, coord_space_name=coord_space_name, section_number=section_number, channel_name=channel_name, downsample=downsample_list[0])
-            
+                        
+            print('Saving tiles for section #%d' % (section_number)) 
             SaveTileGrid(tiles, tile_path)
         
         print('Successfully built tiles')
         
-    
