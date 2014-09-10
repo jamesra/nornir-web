@@ -38,7 +38,8 @@ def SaveTileGrid(tiles, tile_path):
         tile_filename = GetTileFilename(iCol, iRow)
         tile_fullpath = os.path.join(tile_path, tile_filename)
         
-        nornir_imageregistration.core.SaveImage(tile_fullpath, tile)
+        if not os.path.exists(tile_fullpath):
+            nornir_imageregistration.core.SaveImage(tile_fullpath, tile)
     
 
 def GetTilePaths(volume_name, coord_space_name, section_number, channel_name, downsample):
@@ -63,7 +64,8 @@ def DestinationBoundsFromMappings(mappings):
     :return: ndarray [minZ, minY, minX, maxZ, maxY, maxX]'''
 
     points = None
-    for mapping in mappings:
+    mappings = mappings.select_related('dest_bounding_box')
+    for mapping in mappings.iterator():
         bounding_box = Mapping2D.DestBoundingBox(mapping)
         if points is None:
             points = bounding_box.BottomLeftFront
@@ -148,14 +150,17 @@ class CoordSpace(models.CoordSpace):
 #===============================================================================
 
     def GetBounds(self):
-        if len(self.incoming_mappings.all()) is 0:
+        if self.incoming_mappings.count() is 0:
             return self.bounds
-
-        bbox = DestinationBoundsFromMappings(self.incoming_mappings.all())
+        
+        return spatial.BoundingBox.CreateFromBounds(self.bounds.as_tuple())
+        #return self.bounds
+    
+        #bbox = DestinationBoundsFromMappings(self.incoming_mappings.all())
         # self.bounds = bbox
         # self.save()
 
-        return bbox.ToArray()
+        #return bbox.ToArray()
     
     def MappingsOnSection(self, region):
         '''Look for mapping that fall exactly on one section'''
@@ -260,7 +265,7 @@ def MappingsToTiles(mappings, db_filter, resolution=None, downsample=None):
     
     mappings_with_related = mappings.select_related('src_coordinate_space.data2d')
     
-    for mapping in mappings_with_related:
+    for mapping in mappings_with_related.iterator():
         tile = None
         if resolution:
             tile = Mapping2D.GetTileByResolution(mapping, db_filter, resolution)
