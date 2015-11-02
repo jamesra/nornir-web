@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     setup(name='nornir_web',
           classifiers=classifiers,
-          version='1.2.0',
+          version='1.3.0',
           description="Django web modules for Nornir",
           author="James Anderson",
           author_email="James.R.Anderson@utah.edu",
