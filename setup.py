@@ -9,10 +9,11 @@ Created on Aug 30, 2013
 
 # from ez_setup import use_setuptools
 # from setuptools import setup, find_packages
-import os
 import glob
+import os
 
 from ez_setup import use_setuptools
+
 
 if __name__ == '__main__':
     use_setuptools()

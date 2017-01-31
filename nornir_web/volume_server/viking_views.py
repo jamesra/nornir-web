@@ -1,26 +1,26 @@
 # Create your views here.
-import os
-import mimetypes
-import math
-
-import nornir_imageregistration.core
-import nornir_imageregistration.spatial as spatial
-from django.template import RequestContext
-from django.shortcuts import render, HttpResponse, HttpResponseRedirect, get_object_or_404
-from django.core.urlresolvers import reverse
-from django.core.servers.basehttp import FileWrapper
-from django.views.generic.detail import DetailView
-from django.views.defaults import page_not_found
-
 import cProfile
+import math
+import mimetypes
+import os
+
+from django.core.servers.basehttp import FileWrapper
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, HttpResponse, HttpResponseRedirect, get_object_or_404
+from django.template import RequestContext
+from django.views.defaults import page_not_found
+from django.views.generic.detail import DetailView
+import nornir_imageregistration.core
 import numpy
- 
-from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION
+
+import nornir_imageregistration.spatial as spatial
 from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_PROFILE_ENABLED, VOLUME_SERVER_TILE_CACHE_ROOT, VOLUME_SERVER_TILE_CACHE_URL, VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT, VOLUME_SERVER_TILE_CACHE_ENABLED
+from nornir_web.volume_server.settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION
 
 from . import  models
-# from nornir_djangocontroller import Volume
 
+
+# from nornir_djangocontroller import Volume
 def get_default_blank_tile_path(): 
     tile_name = "default_empty_%d_%d.png" % (VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT)
     tile_path = os.path.join(VOLUME_SERVER_TILE_CACHE_ROOT, tile_name)

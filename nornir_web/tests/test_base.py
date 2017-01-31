@@ -5,10 +5,11 @@ Created on May 22, 2013
 @author: u0490822
 '''
 
+import cProfile
 import logging
 import os
 import shutil
-import cProfile
+
 import django.test
 
 from nornir_shared.misc import SetupLogging

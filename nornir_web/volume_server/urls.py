@@ -1,14 +1,15 @@
 from django.conf.urls import patterns, include, url
+
 from . import viking_views, views
+
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
-
 urlpatterns = patterns('',
                        url(r'^$', views.DatasetIndexView.as_view(), name='index'),
                        url(r'^(?P<dataset_name>.+)/(?P<coordspace_name>.+)/bounds$', views.get_bounds, name='get_bounds'),
-                       #url(r'^(?P<dataset_name>.+)/(?P<coordspace_name>.+)/(?P<section_number>\d+)/(?P<channel_name>.+)/(?P<downsample>\d+)/(.*_)?X(?P<column>\d+)_Y(?P<row>\d+).png$', views.get_bounds, name='get_bounds'),
+                       # url(r'^(?P<dataset_name>.+)/(?P<coordspace_name>.+)/(?P<section_number>\d+)/(?P<channel_name>.+)/(?P<downsample>\d+)/(.*_)?X(?P<column>\d+)_Y(?P<row>\d+).png$', views.get_bounds, name='get_bounds'),
                        url(r'^(?P<dataset_name>.+)/(?P<coord_space_name>.+)/(?P<section_number>\d+)/(?P<channel_name>.+)/(?P<downsample>\d+)/(.*_)?X(?P<column>\d+)_Y(?P<row>\d+).png$', viking_views.get_tile, name='get_tile'),
                        # url(r'^(?P<dataset_name>.+)/(?P<channel_name>.+)/$', views.get_image, name='get_image'),
                        # url(r'^(?P<dataset_name>.+)/$', views.image_form, name='image_form')

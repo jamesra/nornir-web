@@ -3,17 +3,18 @@ Created on Jul 23, 2014
 
 @author: u0490822
 '''
-from .. import  test_base
 from django.test import Client
 
 import volume_server.management.commands.volume_import as volume_import
 import volume_server.management.commands.volume_precache as volume_precache
 
+from .. import  test_base
+
 
 class TestTileServer(test_base.PlatformTest):
     
     
-    def assert_status_code(self,response, ExpectedCode=200):
+    def assert_status_code(self, response, ExpectedCode=200):
         self.assertEqual(response.status_code, ExpectedCode, "Invalid status code %d, expected %d" % (response.status_code, ExpectedCode))        
 
     @property

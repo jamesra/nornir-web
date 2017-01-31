@@ -5,12 +5,12 @@ import sys
 
 import cherrypy
 from cherrypy.process import plugins
-
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIHandler
 
 import httplogger
- 
+
+
 __all__ = ['DjangoAppPlugin']
 
 class DjangoAppPlugin(plugins.SimplePlugin):
@@ -41,7 +41,7 @@ class DjangoAppPlugin(plugins.SimplePlugin):
     @classmethod
     def get_settings_from_module(cls, name):
         
-        fd, path, description = (None,None,None)
+        fd, path, description = (None, None, None)
         if '.' in name:
             package, mod = name.rsplit('.', 1)
             fd, path, description = imp.find_module(mod)

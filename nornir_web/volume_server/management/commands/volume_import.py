@@ -1,15 +1,18 @@
-from django.core.management.base import BaseCommand, CommandError
-from nornir_djangomodel.models import *
-import nornir_djangomodel.import_xml as import_xml
-from nornir_shared.argparse_helpers import NumberList
 from optparse import make_option
 import os
+
+from django.core.management.base import BaseCommand, CommandError
+
+import nornir_djangomodel.import_xml as import_xml
+from nornir_djangomodel.models import *
+from nornir_shared.argparse_helpers import NumberList
+
 
 class Command(BaseCommand):
     args = '<volume sections ...>'
     help = 'Import or update the volume at the specified path'
-    option_list = BaseCommand.option_list + ( 
-                  make_option('--sections', dest='sections', default=None, type='str'),            
+    option_list = BaseCommand.option_list + (
+                  make_option('--sections', dest='sections', default=None, type='str'),
                                             )
      
     def handle(self, *args, **options):
@@ -22,8 +25,8 @@ class Command(BaseCommand):
         if 'sections' in options:
             if not options['sections'] is None:
                 section_list = NumberList(options['sections'])
-                #if len(args) == 2:
-                #section_list = NumberList(args[1])
+                # if len(args) == 2:
+                # section_list = NumberList(args[1])
                 print("Importing only sections: %s" % str(section_list))
 
         if not os.path.exists(volume_path):

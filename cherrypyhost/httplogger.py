@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
+
+from cherrypy import _cplogging, _cperror
+import cherrypy
+from django.http import HttpResponseServerError
 import six
 
-import cherrypy
-from cherrypy import _cplogging, _cperror
-from django.http import HttpResponseServerError
 
 class HTTPLogger(_cplogging.LogManager):
     def __init__(self, app):

@@ -24,6 +24,7 @@ Thanks to Damien Tougas for his help on this recipe.
 
 import multiprocessing
 
+
 if __name__ == '__main__':
     import cherrypy
     cherrypy.config.update({'server.socket_port': 8090,

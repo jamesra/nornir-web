@@ -1,14 +1,16 @@
-from django.core.management.base import BaseCommand, CommandError 
-import nornir_djangomodel.import_xml as import_xml
-from nornir_imageregistration import core
-from nornir_imageregistration.spatial import *
-from nornir_shared.argparse_helpers import NumberList
 from optparse import make_option
 import os
 
+from django.core.management.base import BaseCommand, CommandError 
+from nornir_imageregistration import core
+from nornir_imageregistration.spatial import *
 
+import nornir_djangomodel.import_xml as import_xml
+from nornir_shared.argparse_helpers import NumberList
 from nornir_web.volume_server.models import AssembleSectionImage, CoordSpace, GetTilePaths, SaveTileGrid
+
 from ...settings import VOLUME_SERVER_COORD_SPACE_RESOLUTION, VOLUME_SERVER_TILE_WIDTH, VOLUME_SERVER_TILE_HEIGHT
+
 
 class Command(BaseCommand):
     '''Precache tiles for the specified sections and downsample levels'''
@@ -16,10 +18,10 @@ class Command(BaseCommand):
     args = '<sections downsample...>'
     help = 'Import or update the volume at the specified path'
     
-    option_list = BaseCommand.option_list + (  
+    option_list = BaseCommand.option_list + (
                   make_option('--channel', dest='channel', default='TEM', type=str),
                   make_option('--filter', dest='filter', default='Leveled', type=str),
-                  make_option('--sections', dest='sections', default=None, type=str), 
+                  make_option('--sections', dest='sections', default=None, type=str),
                   make_option('--levels', dest='levels', default=None, type=str),
                   make_option('--coordspace', dest='coordspace', default='Grid', type=str)
                   )
@@ -30,16 +32,16 @@ class Command(BaseCommand):
         if 'sections' in options:
             if not options['sections'] is None:
                 section_list = NumberList(options['sections'])
-            #if len(args) == 2:
-            #section_list = NumberList(args[1])
+            # if len(args) == 2:
+            # section_list = NumberList(args[1])
             print("Importing only sections: %s" % str(section_list))
             
         downsample_list = None
         if 'levels' in options:
             if not options['levels'] is None:
                 downsample_list = NumberList(options['levels'])
-            #if len(args) == 2:
-            #section_list = NumberList(args[1])
+            # if len(args) == 2:
+            # section_list = NumberList(args[1])
             print("Building downsample levels: %s" % str(downsample_list))            
         coord_space_name = options['coordspace']
         
@@ -54,13 +56,13 @@ class Command(BaseCommand):
         
      
         if section_list is None:
-            #Get the full image of the section at that downsample level
+            # Get the full image of the section at that downsample level
             coord_space = CoordSpace.objects.get(name=coord_space_name)
             if coord_space is None:
                 raise ValueError("No coordinate space with name %s" % (coord_space_name))
             
             region = coord_space.GetBounds()
-            section_list = range(int(region[iBox.MinZ]), int(region[iBox.MaxZ])+1)
+            section_list = range(int(region[iBox.MinZ]), int(region[iBox.MaxZ]) + 1)
           
         for section_number in section_list:
             tile_builder = TileBuilder(coord_space_name, section_number, channel_name, filter_name)
@@ -82,7 +84,7 @@ class TileBuilder(object):
         self.coord_space_name = coord_space_name
         
     def GetTilePaths(self, downsample_level):
-        coord_space =  CoordSpace.objects.get(name=self.coord_space_name)
+        coord_space = CoordSpace.objects.get(name=self.coord_space_name)
         
         (tile_path, url_path) = GetTilePaths(coord_space.dataset.name,
                                              coord_space_name=coord_space.name,
@@ -113,7 +115,7 @@ class TileBuilder(object):
         
         print('Section #%d: Build image for level %d' % (self.section_number, downsample_level))
         
-        coord_space =  CoordSpace.objects.get(name=self.coord_space_name)
+        coord_space = CoordSpace.objects.get(name=self.coord_space_name)
         resolution = VOLUME_SERVER_COORD_SPACE_RESOLUTION * downsample_level
          
         section_image = AssembleSectionImage(coord_space, self.section_number, resolution, channel_name=self.channel_name, filter_name=self.filter_name)
@@ -122,7 +124,7 @@ class TileBuilder(object):
             return None
         
         return section_image 
-        #core.SaveImage(full_image_path, section_image) 
+        # core.SaveImage(full_image_path, section_image) 
         
     def BuildTilesForLevels(self, downsample_levels):
         
@@ -135,7 +137,7 @@ class TileBuilder(object):
                 continue
             
             if iLevel + 1 < len(downsample_levels):
-                self.CarryImageToNextDownsampleLevel(section_image, level, downsample_levels[iLevel+1])
+                self.CarryImageToNextDownsampleLevel(section_image, level, downsample_levels[iLevel + 1])
             
             del section_image
         return
@@ -144,7 +146,7 @@ class TileBuilder(object):
     def BuildTilesForLevel(self, downsample_level):
          
         tile_shape = [VOLUME_SERVER_TILE_HEIGHT, VOLUME_SERVER_TILE_WIDTH] 
-        #Check for a marker file indicating we've built tiles 
+        # Check for a marker file indicating we've built tiles 
     
         tile_path = self.GetTilePaths(downsample_level)
         if not os.path.exists(tile_path):
@@ -164,7 +166,7 @@ class TileBuilder(object):
             section_image = core.LoadImage(full_image_path)
 
         print('Section #%d: Create tiles for level %d' % (self.section_number, downsample_level))
-        #Cut apart the full image to create tiles
+        # Cut apart the full image to create tiles
         tiles = core.ImageToTiles(section_image, tile_size=tile_shape)
         
         print('Section #%d: Save tiles for level %d' % (self.section_number, downsample_level)) 

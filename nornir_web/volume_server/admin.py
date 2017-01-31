@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 import nornir_djangomodel.models as models
+
 
 admin.site.register(models.Dataset)
 admin.site.register(models.Channel)

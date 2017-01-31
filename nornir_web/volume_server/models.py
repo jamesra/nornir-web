@@ -1,11 +1,14 @@
 import operator
+import os
+
+import nornir_imageregistration.core
+import nornir_imageregistration.transforms.utils 
+
 import nornir_djangomodel.models as models
 import nornir_imageregistration.spatial as spatial
-import nornir_imageregistration.transforms.utils 
-import numpy as np
-import os
 from nornir_web.volume_server.settings import VOLUME_SERVER_TILE_CACHE_ROOT, VOLUME_SERVER_TILE_CACHE_URL
-import nornir_imageregistration.core
+import numpy as np
+
 
 class OutOfBounds(Exception):
     '''Indicates a request was out of the volume boundaries'''
@@ -135,8 +138,8 @@ class CoordSpace(models.CoordSpace):
     
     @classmethod
     def GetTileByDownsample(cls, coord_space, db_filter, downsample_level):
-        #Tile = coord_space.data2d_set.filter(level__lte=downsample_level, filter=db_filter).order_by('-level').first()
-        #return Tile
+        # Tile = coord_space.data2d_set.filter(level__lte=downsample_level, filter=db_filter).order_by('-level').first()
+        # return Tile
                
         return Data2D.objects.filter(level__lte=downsample_level, coord_space=coord_space, filter=db_filter).order_by('-level').first()
 #===============================================================================
@@ -154,13 +157,13 @@ class CoordSpace(models.CoordSpace):
             return self.bounds
         
         return spatial.BoundingBox.CreateFromBounds(self.bounds.as_tuple())
-        #return self.bounds
+        # return self.bounds
     
-        #bbox = DestinationBoundsFromMappings(self.incoming_mappings.all())
+        # bbox = DestinationBoundsFromMappings(self.incoming_mappings.all())
         # self.bounds = bbox
         # self.save()
 
-        #return bbox.ToArray()
+        # return bbox.ToArray()
     
     def MappingsOnSection(self, region):
         '''Look for mapping that fall exactly on one section'''
@@ -245,7 +248,7 @@ def GetData(coordspace, region, resolution, channel_name, filter_name):
 
 
 def RegionWithinCoordSpace(region, coord_space):
-    #TODO, update the importer to update the coord_space bounding box when new Z levels are added 
+    # TODO, update the importer to update the coord_space bounding box when new Z levels are added 
     coord_space_bounds = coord_space.bounds.as_tuple() 
     coord_space_bounding_box = spatial.BoundingBox.CreateFromBounds(coord_space_bounds)
     if not spatial.BoundingBox.contains(region, coord_space_bounding_box):
@@ -258,7 +261,7 @@ def MappingsToTiles(mappings, db_filter, resolution=None, downsample=None):
     '''Grab the appropriate Data2D objects representing tiles used as input to the mappings
     :return: Tuple, (dict, scale) indicating paths to image tiles and the scale relative to the transforms'''
     
-    #Resolution or downsample must be specified
+    # Resolution or downsample must be specified
     assert(not (resolution is None and downsample is None))
     image_to_transform = {}
     requiredScale = None
