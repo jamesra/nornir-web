@@ -23,7 +23,7 @@ class TestTileServer(test_base.PlatformTest):
 
     @property
     def Platform(self):
-        return "IDoc"
+        return "IDOC"
 
 
     def setUp(self):
