@@ -39,7 +39,7 @@ def get_or_create_default_blank_tile():
 
 
 def get_tile(request, dataset_name, coord_space_name, section_number, channel_name, downsample, column, row):
-  
+    """On-demand tile assemble/cache endpoint (legacy path; not maintained for AssembleTiles performance work)."""
     filter_name = 'Leveled'
 
     if not isinstance(section_number, int):
